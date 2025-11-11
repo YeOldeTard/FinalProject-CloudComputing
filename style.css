@@ -1,0 +1,59 @@
+/* Background color */
+.background_color {
+  background-color: gray;
+}
+
+/* Element to center */
+.centered_elements {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Mica effect */
+.mica-effect {
+  width: 320px;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px) saturate(150%) brightness(120%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+
+  text-align: center;
+  color: #000;
+}
+/* Change font */
+.change_font {
+  font-family: 'Segoe UI';
+  font-weight: bold;
+}
+
+/* Alert Error */
+.alertError_container {
+  position: absolute;
+  top: 0.1rem;
+  right: 1rem;
+  max-width: 90vw;
+  z-index: 1050;
+}
+/* Alert Error */
+.alertContainerError {
+  position: absolute;
+  top: 63vh;
+  right: 40vh;
+  gap: 1rem;
+  max-width: 90vw;
+  z-index: 1050;
+}
+
+/* Alert Success */
+.alertContainerSuccess {
+  position: absolute;
+  top: 63vh;
+  right: 41vh;
+  gap: 1rem;
+  max-width: 90vw;
+  z-index: 1050;
+}
