@@ -1,0 +1,56 @@
+/* Google fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Mono:ital,wght@0,600;1,600&family=Roboto:wght@100..900&display=swap');
+
+span {
+  font-family: 'Roboto Mono', monospace;
+}
+.welcome_text {
+  font-size: x-large;
+  text-align: center;
+  position: relative;
+  margin-bottom: 1rem;
+}
+body {
+  background-color: #333C4D;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.login_container {
+  width: 50vh;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px) saturate(150%) brightness(120%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.button_container {
+  display: flex;
+  margin-left: 35vh;
+}
+
+.text_center {
+  text-align: center;
+}
+
+.alert_container {
+  margin-top: 15px;
+  width: 28vh;
+  padding: 10px 10px;
+  border-radius: 8px;
+  justify-content: center;
+}
+.alert_container svg {
+  width: 16px;
+  height: 16px;
+}
+

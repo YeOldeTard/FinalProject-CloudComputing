@@ -1,0 +1,22 @@
+{
+  "name": "final-project---cloud-computing",
+  "version": "1.0.0",
+  "description": "Final Project cloud computing admin side",
+  "license": "ISC",
+  "author": "Yudho Patrianto",
+  "type": "commonjs",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "bootstrap": "^5.3.8",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mysql2": "^3.15.3"
+  }
+}
