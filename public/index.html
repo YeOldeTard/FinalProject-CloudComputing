@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/icons/bootstrap-icons.css">
+</head>
+
+<body class="d-flex align-items-center justify-content-center vh-100 position-relative">
+
+    <button id="themeToggle" class="btn btn-outline-secondary position-absolute top-0 end-0 m-3 rounded-circle">
+        <i class="bi bi-moon-fill" id="themeIcon"></i>
+    </button>
+
+    <!-- Support Toggle Button -->
+    <button type="button" id="supportToggle" class="support-float position-absolute bottom-0 end-0 m-3 border-0">
+        <i class="bi bi-headset"></i>
+    </button>
+
+    <!-- Support Chat Widget -->
+    <div id="supportCard" class="card shadow-sm position-absolute"
+        style="bottom: 90px; right: 20px; width: 420px; height: auto; display: none; z-index: 999;">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+            <h6 class="mb-0 small">Support</h6>
+            <button type="button" class="btn-close btn-close-white btn-sm" id="closeSupport"></button>
+        </div>
+        <div class="card-body p-3">
+            <form id="supportForm">
+                <div class="mb-2">
+                    <input type="text" class="form-control form-control-sm" id="sellerName" placeholder="Nama Seller"
+                        required>
+                </div>
+                <div class="mb-2">
+                    <input type="email" class="form-control form-control-sm" id="supportEmail" placeholder="Email"
+                        required>
+                </div>
+                <div class="mb-2">
+                    <textarea class="form-control form-control-sm" id="issue" rows="2" placeholder="Permasalahan"
+                        required></textarea>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-sm">Kirim</button>
+                </div>
+                <div id="supportAlert" class="mt-2 small"></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
+        <div class="card-body">
+            <h3 class="card-title text-center mb-4">Login</h3>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" required placeholder="Enter your email">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required
+                        placeholder="Enter your password">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+                <div id="alertMessage" class="mt-3"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
