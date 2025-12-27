@@ -4,20 +4,1944 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <!-- Cache Busting -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Dashboard - EasyFood</title>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="/icons/bootstrap-icons.css">
+    <style>
+        /* Theme Variables */
+        :root {
+            --bg-body: #f8f9fa;
+            --bg-surface: #ffffff;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --sidebar-bg: #212529;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --mica-bg: rgba(255, 255, 255, 0.2);
+            --input-bg: #fff;
+            --input-text: #212529;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --bg-surface: #1e1e1e;
+            --text-main: #ffffff;
+            /* Pure White */
+            --text-muted: #d0d0d0;
+            /* Much lighter gray for readability */
+            --border-color: rgba(255, 255, 255, 0.2);
+            --sidebar-bg: #1a1d20;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --mica-bg: rgba(0, 0, 0, 0.5);
+            /* Darker mica for dark mode */
+            --input-bg: #fff;
+            /* Forced White */
+            --input-text: #212529;
+            /* Forced Black */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: var(--text-main) !important;
+        }
+
+        .text-dark {
+            color: var(--text-main) !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+            /* Keep navbar primary/dark for brand identity, or adapt? Keeping fixed for now as per design */
+        }
+
+        /* Mica Profile Card */
+        .mica-profile {
+            background: var(--mica-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 6px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .mica-profile:hover {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .profile-pic-container {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-pic-container i {
+            font-size: 1.5rem;
+            color: #0d6efd;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .user-fullname {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #fff;
+            /* Ensure text visible in dark/light mode on navbar */
+            margin-bottom: 2px;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            height: calc(100vh - 66px);
+            position: fixed;
+            top: 66px;
+            left: 0;
+            z-index: 1000;
+            transition: margin-left 0.3s ease, width 0.3s ease;
+            /* Transition margin-left too */
+            background-color: var(--sidebar-bg);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            border-top-right-radius: 12px;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        .sidebar.collapsed ul.nav {
+            padding-left: 0;
+            text-align: center;
+        }
+
+        .sidebar.collapsed span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+            width: 50px;
+            /* Constrain active bg width */
+            margin: 0 auto 5px auto;
+            /* Center in sidebar */
+            border-radius: 12px;
+            /* App-icon look */
+        }
+
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0 !important;
+            font-size: 1.5rem;
+            /* Larger icon */
+        }
+
+        .sidebar.collapsed .toggle-btn-container {
+            /* Keep it sticking out even when collapsed */
+            right: -15px;
+            transform: translateY(-50%);
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-card {
+            transition: transform 0.3s ease-in-out;
+            background: var(--bg-surface);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Inputs Dark Mode Support */
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background-color: var(--input-bg);
+            border-color: var(--border-color);
+            color: var(--input-text);
+        }
+
+        [data-theme="dark"] .form-control:focus {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+        }
+
+        /* Rest of existing styles... */
+
+
+        .stat-card:hover i {
+            transform: scale(1.1);
+        }
+
+        .stat-card:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Upload Modal Cards */
+        .upload-card {
+            width: 400px;
+            max-width: 90vw;
+            text-align: center;
+        }
+
+        .upload-option-btn {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 10px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .upload-option-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+    <style>
+        /* Restored Missing Styles */
+
+        /* Main Content Sync */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 66px;
+            padding: 20px;
+            min-height: calc(100vh - 66px);
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.collapsed {
+            margin-left: 80px;
+        }
+
+        /* Mica Modal (Lightbox & Uploads) */
+        .mica-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mica-modal.show {
+            opacity: 1;
+        }
+
+        .mica-modal-content {
+            background: var(--mica-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 12px;
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mica-modal-content img {
+            height: 85vh;
+            width: auto;
+            max-width: 95vw;
+            min-width: 300px;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .mica-close-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 2010;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -280px;
+            }
+
+            .sidebar.show {
+                margin-left: 0;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+            }
+
+            .toggle-btn-container {
+                display: none !important;
+            }
+        }
+
+        /* Sidebar Toggle Button (Desktop) */
+        .toggle-btn-container {
+            position: absolute;
+            top: 50%;
+            right: -15px;
+            /* Stick out */
+            transform: translateY(-50%);
+            z-index: 1001;
+            /* Above main content */
+        }
+
+        .toggle-btn-container button {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--sidebar-bg);
+            /* Match sidebar */
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 0;
+            color: white;
+            /* Icon always white */
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn-container button:hover {
+            background-color: var(--primary-color, #0d6efd);
+            /* Highlight on hover */
+            border-color: var(--primary-color, #0d6efd);
+            transform: scale(1.1);
+        }
+
+        .toggle-btn-container button i {
+            font-size: 12px;
+        }
+
+        /* Force text colors to respect theme */
+        .text-dark {
+            color: var(--text-main) !important;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: var(--text-main) !important;
+        }
+    </style>
 </head>
 
-<body class="bg-light d-flex align-items-center justify-content-center vh-100">
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <!-- Toggle Button (Desktop) REMOVED -->
+            <a class="navbar-brand fw-bold" href="#">EasyFood</a>
 
-    <div class="text-center">
-        <h1 class="display-1 fw-bold">Hello World</h1>
-        <a href="/logout" class="btn btn-danger mt-4">Logout</a>
+            <!-- Navbar Toggler for mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <div class="ms-auto d-flex align-items-center">
+                    <!-- Mica Profile Section -->
+                    <div class="dropdown"><a href="#" class="mica-profile text-decoration-none" id="userDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <!-- Left: Profile Photo -->
+                            <div class="profile-pic-container" style="overflow: hidden;"><img id="navbarProfileImage"
+                                    src="" alt="Profile"
+                                    style="width: 100%; height: 100%; object-fit: cover; display: none;"
+                                    onerror="this.style.display='none'; document.getElementById('navbarDefaultIcon').style.display='block'"><i
+                                    id="navbarDefaultIcon" class="bi bi-person-fill"></i></div>
+                            <!-- Right: Info -->
+                            <div class="user-info text-start"><span class="user-fullname"
+                                    id="userFullname">Loading...</span><span class="user-email"
+                                    id="userEmail">Loading...</span></div>
+                            <!-- Chevron --><i class="bi bi-chevron-down ms-3 text-white small opacity-75"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end mt-2 shadow" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="showView('profile')"><i
+                                        class="bi bi-person me-2"></i>Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="/logout"><i
+                                        class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmationModal" class="mica-modal" tabindex="-1" style="display: none; z-index: 2050;">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg rounded-4"
+                style="background: var(--bg-surface); color: var(--text-main);">
+                <div class="modal-header border-0 px-4 pt-4 pb-2">
+                    <h5 class="modal-title fw-bold fs-5">Konfirmasi</h5>
+                    <button type="button" class="btn-close" onclick="closeConfirmationModal()"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-2">
+                    <p class="mb-0">Pindahkan order ini ke Riwayat Selesai?</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-4">
+                    <div class="d-flex w-100 gap-2">
+                        <button type="button" class="btn btn-outline-secondary w-50 rounded-3 py-2 fw-bold"
+                            onclick="closeConfirmationModal()">Batal</button>
+                        <button type="button" class="btn btn-danger w-50 rounded-3 py-2 fw-bold"
+                            onclick="executeArchiveOrder()">Ya</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Order Management Modal -->
+    <div id="orderModal" class="mica-modal" tabindex="-1" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4"
+                style="background: var(--bg-surface); color: var(--text-main);">
+                <div class="modal-header border-0 px-4 pt-4 pb-2">
+                    <h5 class="modal-title fw-bold fs-4">Manage Order</h5>
+                    <button type="button" class="btn-close" onclick="closeOrderModal()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    <input type="hidden" id="modalOrderInternalId">
+
+                    <div class="d-flex flex-column gap-2 mb-4">
+                        <div class="d-flex justify-content-between border-bottom pb-2">
+                            <span>Nomor Order:</span> <span id="modalOrderIdText" class="fw-bold"></span>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom pb-2">
+                            <span>Pelanggan:</span> <span id="modalOrderCustomer" class="fw-bold"></span>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom pb-2">
+                            <span>Tanggal:</span> <span id="modalOrderDate" class="fw-bold"></span>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom pb-2">
+                            <span>Produk:</span> <span id="modalOrderProduct" class="fw-bold"></span>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom pb-2">
+                            <span>Quantitas:</span> <span id="modalOrderQty" class="fw-bold"></span>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom pb-2">
+                            <span>Status:</span> <span id="modalOrderStatusText" class="fw-bold"></span>
+                        </div>
+                        <div class="d-flex justify-content-between pt-1">
+                            <span>Total Harga:</span> <span id="modalOrderTotal"
+                                class="fw-bold fs-5 text-primary"></span>
+                        </div>
+                    </div>
+
+                    <div id="updateStatusContainer">
+                        <label for="modalOrderStatus"
+                            class="form-label fw-bold small text-muted text-uppercase mb-2">Update Status</label>
+                        <select class="form-select form-select-lg rounded-3" id="modalOrderStatus">
+                            <option value="Menunggu Pembayaran">Menunggu Pembayaran</option>
+                            <option value="Disiapkan">Disiapkan</option>
+                            <option value="Makanan Siap">Makanan Siap</option>
+                            <option value="Menunggu Kurir">Menunggu Kurir</option>
+                            <option value="Order Selesai">Order Selesai</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <div class="d-flex w-100 gap-2">
+                        <button type="button" id="btnArchiveOrder"
+                            class="btn btn-outline-danger w-50 rounded-3 py-2 fw-bold d-none" onclick="archiveOrder()">
+                            <i class="bi bi-trash me-2"></i>Hapus
+                        </button>
+                        <button type="button" id="btnUpdateOrder" class="btn btn-primary w-100 rounded-3 py-2 fw-bold"
+                            onclick="updateOrderStatus()">
+                            <i class="bi bi-save me-2"></i>Update Pesanan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" id="sidebar">
+        <!-- Toggle Button (Moved inside sidebar) -->
+        <div class="toggle-btn-container d-none d-lg-block">
+            <button class="btn btn-link text-white p-0 text-decoration-none" onclick="toggleSidebar()">
+                <i id="sidebarToggleIcon" class="bi bi-chevron-left fs-5"></i>
+            </button>
+        </div>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item"><a href="#" class="nav-link active text-white" aria-current="page"
+                    onclick="showView('dashboard')"><i class="bi bi-house-door me-2"></i><span>Dashboard</span></a></li>
+            <li><a href="#submenuProduk" data-bs-toggle="collapse" class="nav-link text-white"><i
+                        class="bi bi-box-seam me-2"></i><span>Produk</span></a>
+                <ul class="collapse nav flex-column ms-3" id="submenuProduk" style="list-style: none; padding-left: 0;">
+                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('add-product')"><i
+                                class="bi bi-plus-lg me-2"></i><span>Tambah Barang</span></a></li>
+                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('delete-product')"><i
+                                class="bi bi-trash me-2"></i><span>Hapus
+                                Barang</span></a></li>
+                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('update-product')"><i
+                                class="bi bi-pencil-square me-2"></i><span>Update Barang</span></a></li>
+                </ul>
+            </li>
+            <li><a href="#submenuOrder" data-bs-toggle="collapse" class="nav-link text-white"><i
+                        class="bi bi-cart me-2"></i><span>Order</span></a>
+                <ul class="collapse nav flex-column ms-3" id="submenuOrder" style="list-style: none; padding-left: 0;">
+                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('order'); loadOrders(false)"><i
+                                class="bi bi-hourglass-split me-2"></i><span>Pesanan Masuk</span></a>
+                    </li>
+                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('order'); loadOrders(true)"><i
+                                class="bi bi-archive me-2"></i><span>Pesanan Selesai</span></a></li>
+                </ul>
+            </li>
+        </ul>
+        <!-- Dark Mode Toggle (Bottom) -->
+        <div class="mt-auto p-3 border-top border-secondary"><a href="#"
+                class="nav-link text-white d-flex align-items-center" onclick="toggleTheme(event)"><i id="themeIcon"
+                    class="bi bi-moon-stars me-2"></i><span id="themeText">Dark
+                    Mode</span></a></div>
+    </div>
+    <!-- Main Content -->
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Global Alert Container -->
+        <div id="globalAlertContainer" style="position: fixed; top: 80px; right: 20px; z-index: 9999; width: 350px;">
+        </div>
+        <div class="container-fluid">
+            <!-- Dashboard View -->
+            <div id="dashboard-view">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Dashboard Overview</h1><button class="btn btn-primary d-md-none"
+                        onclick="document.querySelector('.sidebar').classList.toggle('show')"><i
+                            class="bi bi-list"></i>Menu </button>
+                </div>
+                <div class="card shadow-sm border-0 bg-transparent">
+                    <div class="card-body p-0">
+                        <section class="app-stats">
+                            <!-- Greeting -->
+                            <h4 id="greetingText" class="mb-4 fw-bold text-dark">Welcome</h4>
+
+                            <!-- Section 1: Performa Toko -->
+                            <h4 class="mb-4 fw-bold text-dark">Performa Toko</h4>
+                            <div class="row g-4 justify-content-start mb-4">
+                                <!-- Completed Orders Card -->
+                                <div class="col-md-4 col-lg-3">
+                                    <div class="stat-card text-center h-100"><i
+                                            class="bi bi-check-circle-fill fs-1 text-info mb-3 d-block"></i>
+                                        <h3 id="totalCompleted" class="fs-4 fw-bold text-dark">0</h3>
+                                        <p class="text-muted mb-0 small">Pesanan Selesai</p>
+                                    </div>
+                                </div>
+                                <!-- Pending Payment Card -->
+                                <div class="col-md-4 col-lg-3">
+                                    <div class="stat-card text-center h-100"><i
+                                            class="bi bi-hourglass-split fs-1 text-danger mb-3 d-block"></i>
+                                        <h3 id="totalPending" class="fs-4 fw-bold text-dark">0</h3>
+                                        <p class="text-muted mb-0 small">Menunggu Pembayaran</p>
+                                    </div>
+                                </div>
+                                <!-- Rating Card -->
+                                <div class="col-md-4 col-lg-3">
+                                    <div class="stat-card text-center h-100"><i
+                                            class="bi bi-star-fill fs-1 text-warning mb-3 d-block"></i>
+                                        <h3 id="ratingStore" class="fs-4 fw-bold text-dark">N/A</h3>
+                                        <p class="text-muted mb-0 small">Rating Toko</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Divider -->
+                            <hr class="my-5" style="opacity: 0.1; border-top: 2px solid currentColor;">
+
+                            <!-- Section 2: Produk -->
+                            <h4 class="mb-4 fw-bold text-dark">Produk</h4>
+                            <div class="row g-4 justify-content-start">
+                                <!-- Produk Card -->
+                                <div class="col-md-4 col-lg-3">
+                                    <div class="stat-card text-center h-100"><i
+                                            class="bi bi-box-seam fs-1 text-primary mb-3 d-block"></i>
+                                        <h3 id="totalProducts" class="fs-4 fw-bold text-dark">
+                                            ...</h3>
+                                        <p class="text-muted mb-0 small">Total Produk</p>
+                                    </div>
+                                </div>
+                                <!-- Stock Card -->
+                                <div class="col-md-4 col-lg-3">
+                                    <div class="stat-card text-center h-100"><i
+                                            class="bi bi-layers-fill fs-1 text-success mb-3 d-block"></i>
+                                        <h3 id="totalStock" class="fs-4 fw-bold text-dark">
+                                            ...</h3>
+                                        <p class="text-muted mb-0 small">Jumlah Stok</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <!-- Add Product View -->
+            <div id="add-product-view" style="display: none;">
+                <h3 class="mb-4">Tambah Barang</h3>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <form id="addProductForm">
+                            <div class="mb-3"><label class="form-label">Nama
+                                    Produk</label><input type="text" class="form-control" name="product_name" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label">Stok</label><input type="number"
+                                        class="form-control" name="product_stock" required>
+                                </div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Harga
+                                        (Rp)</label><input type="text" class="form-control" name="product_price"
+                                        oninput="formatPrice(this)" required></div>
+                            </div>
+                            <div class="mb-3"><label class="form-label">Catatan</label><textarea class="form-control"
+                                    name="product_notes" rows="3"></textarea></div>
+                            <div class="mb-3"><label class="form-label">Foto Produk</label>
+                                <!-- Hidden inputs to store selection --><input type="file" id="realFileInput"
+                                    name="product_image" class="d-none" accept="image/*"><input type="hidden"
+                                    name="product_image_url" id="realUrlInput">
+                                <div class="preview-container mb-3" id="addProductPreview">
+                                    <div class="text-muted text-center"><i
+                                            class="bi bi-image fs-1 d-block mb-2"></i><span>Preview
+                                            Foto</span></div><img src="" style="display: none;">
+                                </div><button type="button" class="btn btn-outline-primary w-100"
+                                    onclick="openUploadMethod()"><i class="bi bi-cloud-upload me-2"></i>Pilih Foto
+                                    Produk </button>
+                            </div><button type="button" class="btn btn-primary" onclick="addProduct()"><i
+                                    class="bi bi-save me-1"></i>Simpan
+                                Produk </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Delete Product View -->
+            <div id="delete-product-view" style="display: none;">
+                <h3 class="mb-4">Hapus Barang</h3>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="mb-4"><label class="form-label">Pilih Produk untuk
+                                Dihapus</label><select class="form-select" id="deleteProductSelect"
+                                onchange="onDeleteProductSelect()">
+                                <option value="" selected disabled>-- Pilih Produk --
+                                </option>
+                            </select></div>
+                        <!-- Product Detail Preview -->
+                        <div id="deleteProductDetail" class="border rounded p-3 bg-light d-none">
+                            <div class="row align-items-center">
+                                <div class="col-md-3 text-center"><img id="delProdImg" src="" alt="Product Image"
+                                        class="img-fluid rounded" style="max-height: 150px; object-fit: contain;">
+                                </div>
+                                <div class="col-md-9">
+                                    <h5 id="delProdName" class="fw-bold mb-1">
+                                        Product Name</h5>
+
+                                    <div class="row">
+                                        <div class="col-6"><small
+                                                class="text-uppercase text-muted fw-bold">Harga</small>
+                                            <p id="delProdPrice" class="fs-5 fw-bold text-primary">Rp
+                                                0</p>
+                                        </div>
+                                        <div class="col-6"><small class="text-uppercase text-muted fw-bold">Stok</small>
+                                            <p id="delProdStock" class="fs-5 fw-bold text-dark">0</p>
+                                        </div>
+                                    </div><button id="btnDeleteTrigger" class="btn btn-danger mt-2"><i
+                                            class="bi bi-trash me-1"></i>Hapus
+                                        Produk Ini </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Update Product View -->
+            <div id="update-product-view" style="display: none;">
+                <h3 class="mb-4">Update Barang</h3>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="mb-4"><label class="form-label">Pilih Produk
+                                untuk Diupdate</label><select class="form-select" id="updateProductSelect"
+                                onchange="onUpdateProductSelect()">
+                                <option value="" selected disabled>-- Pilih Produk
+                                    --</option>
+                            </select></div>
+                        <!-- Update Form (Hidden until product selected) -->
+                        <form id="updateProductForm" class="d-none"><input type="hidden" name="product_id"
+                                id="updateId">
+                            <div class="row align-items-center mb-4">
+                                <div class="col-md-3 text-center"><label class="form-label d-block text-start">Current
+                                        Image</label><img id="updateProdImg" src="" class="img-fluid rounded mb-2"
+                                        style="max-height: 100px;"></div>
+                                <div class="col-md-9">
+                                    <div class="mb-3"><label class="form-label">Ganti Foto Produk
+                                            (Opsional)</label><input type="file" class="form-control"
+                                            name="product_image" accept="image/*"><small class="text-muted">Biarkan
+                                            kosong
+                                            jika tidak ingin mengganti
+                                            gambar.</small></div>
+                                </div>
+                            </div>
+                            <div class="mb-3"><label class="form-label">Nama
+                                    Produk</label><input type="text" class="form-control" name="product_name"
+                                    id="updateName" required></div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label">Stok</label><input type="number"
+                                        class="form-control" name="product_stock" id="updateStock" required></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Harga
+                                        (Rp)</label><input type="text" class="form-control" name="product_price"
+                                        id="updatePrice" oninput="formatPrice(this)" required>
+                                </div>
+                            </div>
+                            <div class="mb-3"><label class="form-label">Catatan</label><textarea class="form-control"
+                                    name="product_notes" id="updateNotes" rows="3"></textarea></div>
+                            <button type="button" class="btn btn-success" onclick="updateProduct()"><i
+                                    class="bi bi-check-lg me-1"></i>Simpan
+                                Perubahan </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Order View -->
+            <div id="order-view" style="display: none;">
+                <h3 class="mb-4">Order List</h3>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nomor Order</th>
+                                        <th>Pelanggan</th>
+                                        <th>Tanggal</th>
+                                        <th>Produk</th>
+                                        <th>Total</th>
+                                        <th>Quantitas</th>
+                                        <th>Status</th>
+                                        <th>Aksi (Manage)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Empty for now as requested -->
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-4">
+                                            Belum ada order yang masuk.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile View (Hidden by default) -->
+            <div id="profile-view" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Profil Toko</h3>
+                    <!-- Mobile toggle duplicated here, can rely on navbar toggle
+                                                            instead in future cleanup --><button
+                        class="btn btn-primary d-md-none"
+                        onclick="document.querySelector('.sidebar').classList.toggle('show')"><i
+                            class="bi bi-list"></i>Menu </button>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm text-center p-4">
+                            <div class="mx-auto mb-3" style="width: 100px; height: 100px; position: relative;">
+                                <img id="profileImage" src="" alt="Profile"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; cursor: pointer;"
+                                    onclick="openPhotoModal(this.src)"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                <div id="defaultProfileIcon"
+                                    style="width: 100%; height: 100%; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-person-fill text-primary" style="font-size: 3rem;"></i>
+                                </div>
+                            </div>
+                            <h4 id="profileFullname" class="fw-bold">Loading...
+                            </h4>
+                            <p id="profileEmail" class="text-muted">Loading...
+                            </p><input type="file" id="photoInput" hidden accept="image/*"
+                                onchange="uploadPhoto(this)"><button class="btn btn-outline-primary btn-sm mt-2"
+                                onclick="document.getElementById('photoInput').click()">Upload
+                                Photo </button>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Profile Toko</h5>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="mb-3"><label class="form-label">Nama
+                                            Toko</label><input type="text" class="form-control" id="inputShopName"
+                                            readonly></div>
+                                    <div class="mb-3"><label class="form-label">Email
+                                            Toko</label><input type="email" class="form-control" id="inputEmail"
+                                            readonly></div>
+                                    <div class="mt-4"><button type="button" class="btn btn-primary" id="btnEdit"
+                                            onclick="toggleEdit(true)"><i class="bi bi-pencil-square me-2"></i>Ubah
+                                            Profile </button>
+                                        <div id="editActions" class="d-none">
+                                            <button type="button" class="btn btn-success me-2"
+                                                onclick="saveProfile()"><i class="bi bi-check-lg me-2"></i>Simpan
+                                            </button><button type="button" class="btn btn-secondary"
+                                                onclick="toggleEdit(false)"><i class="bi bi-x-lg me-2"></i>Batalkan
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="photoModal" class="mica-modal" onclick="closePhotoModal(event)">
+        <div class="mica-modal-content" onclick="event.stopPropagation()"><button class="mica-close-btn"
+                onclick="closePhotoModal(true)"><i class="bi bi-x-lg"></i></button><img id="imgProfileModal" src=""
+                alt="Full Size Profile"></div>
+    </div>
+    <!-- Upload Method Modal -->
+    <div id="uploadMethodModal" class="mica-modal" style="z-index: 1060;">
+        <div class="mica-modal-content upload-card flex-column p-4">
+            <h4 class="text-white mb-4">Pilih Metode Upload</h4><button class="upload-option-btn"
+                onclick="openUploadFileModal()"><i class="bi bi-file-earmark-image"></i>Upload File
+            </button><button class="upload-option-btn" onclick="openUploadUrlModal()"><i
+                    class="bi bi-link-45deg"></i>Dari URL </button><button class="btn btn-link text-white mt-3"
+                onclick="closeUploadModals()">Batal</button>
+        </div>
+    </div>
+    <!-- Upload File Modal -->
+    <div id="uploadFileModal" class="mica-modal" style="z-index: 1060;">
+        <div class="mica-modal-content upload-card flex-column p-4">
+            <h4 class="text-white mb-3">Upload File Gambar</h4>
+            <div class="bg-white p-3 rounded w-100 mb-3"><input type="file" class="form-control"
+                    id="modalFileInputSelect" accept="image/*"></div>
+            <div class="d-flex gap-2 w-100"><button class="btn btn-secondary flex-fill"
+                    onclick="openUploadMethod()">Kembali</button><button class="btn btn-primary flex-fill"
+                    onclick="confirmFileUpload()">Gunakan
+                    File</button></div>
+        </div>
+    </div>
+    <!-- Upload URL Modal -->
+    <div id="uploadUrlModal" class="mica-modal" style="z-index: 1060;">
+        <div class="mica-modal-content upload-card flex-column p-4">
+            <h4 class="text-white mb-3">Masukkan URL Gambar</h4>
+            <div class="w-100 mb-3"><input type="text" class="form-control" id="modalUrlInputSelect"
+                    placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="d-flex gap-2 w-100"><button class="btn btn-secondary flex-fill"
+                    onclick="openUploadMethod()">Kembali</button><button class="btn btn-primary flex-fill"
+                    onclick="confirmUrlUpload()">Gunakan
+                    URL</button></div>
+        </div>
+    </div>
     <script src="/js/bootstrap.bundle.min.js"></script>
+    <script> // Sidebar Toggle Logic
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const icon = document.getElementById('sidebarToggleIcon');
+
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('collapsed');
+
+            // Toggle Icon
+            if (sidebar.classList.contains('collapsed')) {
+                icon.classList.remove('bi-chevron-left');
+                icon.classList.add('bi-chevron-right');
+            }
+
+            else {
+                icon.classList.remove('bi-chevron-right');
+                icon.classList.add('bi-chevron-left');
+            }
+
+            // Save state
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+        }
+
+        // View Switcher Function
+        function showView(viewId) {
+            // Save to localStorage
+            localStorage.setItem('activeView', viewId);
+
+            // Hide all views
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('profile-view').style.display = 'none';
+            document.getElementById('add-product-view').style.display = 'none';
+            document.getElementById('delete-product-view').style.display = 'none';
+            document.getElementById('update-product-view').style.display = 'none';
+            document.getElementById('order-view').style.display = 'none';
+
+            // Hide popover if exists
+            if (typeof deletePopover !== 'undefined' && deletePopover) {
+                deletePopover.hide();
+            }
+
+            // Show target view
+            document.getElementById(viewId + '-view').style.display = 'block';
+
+            // Logic specific to views
+            if (viewId === 'delete-product' || viewId === 'update-product') {
+                loadUserProducts();
+            }
+            if (viewId === 'order') {
+                loadOrders();
+            }
+
+            // Update Sidebar Active State (Optional/Basic)
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+
+                if (viewId === 'dashboard' && link.innerHTML.includes('Dashboard')) {
+                    link.classList.add('active');
+                }
+
+                // Add more conditions if sidebar has Profile link
+            });
+        }
+
+        // Edit Mode Toggle
+        function toggleEdit(enable) {
+            const inputs = ['inputShopName',
+                'inputEmail'];
+            const btnEdit = document.getElementById('btnEdit');
+            const editActions = document.getElementById('editActions');
+            const profileAlert = document.getElementById('profileAlert');
+
+            // Clear alert ONLY when starting to edit, not when finishing
+            if (enable && profileAlert) profileAlert.innerHTML = '';
+
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+
+                if (enable) {
+                    input.removeAttribute('readonly');
+                }
+
+                else {
+                    input.setAttribute('readonly', true);
+                    // Reset value if cancelled (optional, requires storing original val)
+                    if (id === 'inputShopName') input.value = document.getElementById('userFullname').textContent;
+                    // For email, we might need to store original separately if we want perfect cancel behavior
+                }
+            });
+
+            if (enable) {
+                btnEdit.classList.add('d-none');
+                editActions.classList.remove('d-none');
+            }
+
+            else {
+                btnEdit.classList.remove('d-none');
+                editActions.classList.add('d-none');
+            }
+        }
+
+        let alertTimeout;
+
+        // Custom Alert Helper
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('globalAlertContainer');
+
+            // Create Alert Element
+            const alertDiv = document.createElement('div');
+            let icon = '⚠️';
+            let alertClass = 'alert-danger';
+
+            if (type === 'success') {
+                icon = '✅';
+                alertClass = 'alert-success';
+            } else if (type === 'warning') {
+                icon = '⚠️';
+                alertClass = 'alert-warning';
+            }
+
+            alertDiv.className = `alert ${alertClass} alert-dismissible fade show shadow-sm mb-2`;
+            alertDiv.innerHTML = `<strong>${icon}</strong> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+            alertContainer.appendChild(alertDiv);
+
+            // Auto dismiss after 3 seconds
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alertDiv);
+                bsAlert.close();
+            }, 3000);
+        }
+
+        // Save Profile
+        async function saveProfile() {
+            const shopName = document.getElementById('inputShopName').value.trim();
+            const email = document.getElementById('inputEmail').value.trim();
+
+            // Get original values from the display elements (which hold the current committed data)
+            // Note: input val is usually safer but we reset input val on cancel, so textContent is fine if we loaded it correctly.
+            // A safer source of truth would be storing original values in variables when enabling edit, but this works given loadUserData populates both.
+            const originalShopName = document.getElementById('profileFullname').textContent.trim();
+            const originalEmail = document.getElementById('profileEmail').textContent.trim();
+
+            if (shopName === originalShopName && email === originalEmail) {
+                showAlert('Tidak ada perubahan profile', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/user/update', {
+
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+
+                    ,
+                    body: JSON.stringify({
+                        shop_name: shopName, email: email
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Profile updated successfully!', 'success');
+                    loadUserData(); // Refresh navbar name
+                }
+
+                else {
+                    showAlert('Error: ' + data.message, 'danger');
+                }
+            }
+
+            catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function addProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+
+            // Clean price format (remove dots)
+            const price = formData.get('product_price').replace(/\./g, '');
+            formData.set('product_price', price);
+
+            // Append selected file manually if exists
+            if (selectedProductFile) {
+                formData.set('product_image', selectedProductFile);
+            }
+
+            fetch('/api/product/add', {
+                method: 'POST',
+                body: formData // No headers needed for FormData, browser sets boundary
+
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    showAlert('Produk berhasil ditambahkan!', 'success');
+                    form.reset();
+
+                    // Reset Preview and Global File
+                    selectedProductFile = null;
+                    const previewContainer = document.getElementById('addProductPreview');
+                    previewContainer.querySelector('img').style.display = 'none';
+                    previewContainer.querySelector('div').style.display = 'block';
+
+                    loadStats(); // Update dashboard stats immediately
+                }
+
+                else {
+                    showAlert('Gagal menambahkan produk: ' + data.message, 'danger');
+                }
+            }).catch(error => console.error('Error:', error));
+        }
+
+        // Upload Photo
+        async function uploadPhoto(input) {
+            if (input.files && input.files[0]) {
+                const formData = new FormData();
+                formData.append('photo', input.files[0]);
+
+                try {
+                    const response = await fetch('/api/user/upload-photo', {
+                        method: 'POST',
+                        body: formData // No headers needed, browser sets multipart/form-data
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showAlert('Photo updated successfully!', 'success');
+
+                        // Update Image Src with cache busting
+                        const newSrc = data.imagePath + '?t=' + new Date().getTime();
+                        updateProfileImage(newSrc);
+                    }
+
+                    else {
+                        showAlert('Upload failed: ' + data.message, 'danger');
+                    }
+                }
+
+                catch (error) {
+                    console.error('Error uploading photo:', error);
+                    showAlert('An error occurred during upload', 'danger');
+                }
+            }
+        }
+
+        function updateProfileImage(src) {
+            // Profile Page Image
+            const img = document.getElementById('profileImage');
+            const icon = document.getElementById('defaultProfileIcon');
+
+            // Navbar Image
+            const navImg = document.getElementById('navbarProfileImage');
+            const navIcon = document.getElementById('navbarDefaultIcon');
+
+            if (src) {
+                // Update Profile Page
+                img.src = src;
+                img.style.display = 'block';
+                icon.style.display = 'none';
+
+                // Update Navbar
+                navImg.src = src;
+                navImg.style.display = 'block';
+                navIcon.style.display = 'none';
+            }
+
+            else {
+                // Reset Profile Page
+                img.style.display = 'none';
+                icon.style.display = 'flex';
+
+                // Reset Navbar
+                navImg.style.display = 'none';
+                navIcon.style.display = 'block'; // defaults to block/inline-block for icon
+            }
+        }
+
+        // Fetch and display user data
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/user');
+                const data = await response.json();
+
+                if (data.success && data.user) {
+                    const shopName = data.user.shop_name || 'Guest Shop';
+                    const email = data.user.email || 'No Email';
+                    const shopImage = data.user.shop_image;
+
+                    // Update Navbar
+                    document.getElementById('userFullname').textContent = shopName;
+                    document.getElementById('userEmail').textContent = email;
+
+                    // Update Profile Page
+                    document.getElementById('profileFullname').textContent = shopName;
+                    document.getElementById('profileEmail').textContent = email;
+                    document.getElementById('inputShopName').value = shopName;
+                    document.getElementById('inputEmail').value = email;
+
+                    // Update Welcome Message
+                    const greeting = getGreeting();
+
+                    document.getElementById('greetingText').textContent = `${greeting} ${shopName}`;
+
+                    // Update Profile Image
+                    // Only update if shopImage is present to avoid broken link logic relying solely on onerror
+                    if (shopImage) {
+                        updateProfileImage(shopImage);
+                    }
+
+                }
+
+                else {
+                    document.getElementById('userFullname').textContent = 'Guest';
+                }
+            }
+
+            catch (error) {
+                console.error('Error loading user data:', error);
+                document.getElementById('userFullname').textContent = 'Error';
+            }
+        }
+
+        // Load user data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Restore active view
+            const activeView = localStorage.getItem('activeView') || 'dashboard';
+            showView(activeView);
+
+            // Restore sidebar state
+            const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+            if (isSidebarCollapsed) {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.getElementById('mainContent').classList.add('collapsed');
+
+                // Set correct icon for initial collapsed state
+                const icon = document.getElementById('sidebarToggleIcon');
+
+                if (icon) {
+                    icon.classList.remove('bi-chevron-left');
+                    icon.classList.add('bi-chevron-right');
+                }
+            }
+
+            loadUserData();
+            loadStats(); // Load statistics
+            initTheme(); // Initialize Theme
+
+            // Handle Dropdown Profile Link
+            const profileLink = document.querySelector('.dropdown-item[href="#"][onclick*="profile"]');
+
+            // Init Popover
+            initDeletePopover();
+        });
+
+        // Open Photo Modal
+        function openPhotoModal(src) {
+            if (!src) return;
+            document.getElementById('imgProfileModal').src = src;
+            const modal = document.getElementById('photoModal');
+            modal.style.display = 'flex';
+
+            // Slight delay to allow display flex to apply before opacity transition
+            setTimeout(() => {
+                modal.classList.add('show');
+            }
+
+                , 10);
+        }
+
+        // Close Photo Modal
+        function closePhotoModal(force = false) {
+
+            // If called from the background click (event is passed), only close if target is the background
+            if (force === true || (event.target && event.target.id === 'photoModal')) {
+                const modal = document.getElementById('photoModal');
+                modal.classList.remove('show');
+
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }
+
+                    , 300); // Wait for transition
+            }
+        }
+
+        // Delete Product Functions
+        let userProducts = []; // Local cache
+
+        function loadUserProducts() {
+            return fetch('/api/user/products').then(res => res.json()).then(data => {
+                if (data.success) {
+                    userProducts = data.products;
+
+                    // Populate Delete Dropdown
+                    const deleteSelect = document.getElementById('deleteProductSelect');
+
+                    if (deleteSelect) {
+                        deleteSelect.innerHTML = '<option value="" selected disabled>-- Pilih Produk --</option>';
+
+                        data.products.forEach(prod => {
+                            const option = document.createElement('option');
+                            option.value = prod.id;
+                            option.textContent = prod.product_name;
+                            deleteSelect.appendChild(option);
+                        });
+                    }
+
+                    // Populate Update Dropdown
+                    const updateSelect = document.getElementById('updateProductSelect');
+
+                    if (updateSelect) {
+                        updateSelect.innerHTML = '<option value="" selected disabled>-- Pilih Produk --</option>';
+
+                        data.products.forEach(prod => {
+                            const option = document.createElement('option');
+                            option.value = prod.id;
+                            option.textContent = prod.product_name;
+                            updateSelect.appendChild(option);
+                        });
+                    }
+
+                    // Reset detail view
+                    document.getElementById('deleteProductDetail').classList.add('d-none');
+                }
+            }).catch(err => console.error('Error loading products:', err));
+        }
+
+        // Initialize Delete Popover
+        let deletePopover;
+
+        // --- Upload Modal Logic ---
+        let selectedProductFile = null;
+
+        function openUploadMethod() {
+            closePhotoModal(true); // Close others if open
+            const modal = document.getElementById('uploadMethodModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeUploadModals() {
+            const modals = ['uploadMethodModal',
+                'uploadFileModal',
+                'uploadUrlModal'];
+
+            modals.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('show');
+                setTimeout(() => el.style.display = 'none', 300);
+            });
+        }
+
+        function openUploadFileModal() {
+            // Close Method Modal first (instant, no fade out to feel snappy or crossfade)
+            document.getElementById('uploadMethodModal').style.display = 'none';
+            document.getElementById('uploadMethodModal').classList.remove('show');
+
+            const modal = document.getElementById('uploadFileModal');
+            modal.style.display = 'flex';
+            // Clean previous input
+            document.getElementById('modalFileInputSelect').value = '';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function openUploadUrlModal() {
+            document.getElementById('uploadMethodModal').style.display = 'none';
+            document.getElementById('uploadMethodModal').classList.remove('show');
+
+            const modal = document.getElementById('uploadUrlModal');
+            modal.style.display = 'flex';
+            // Clean previous input
+            document.getElementById('modalUrlInputSelect').value = '';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function confirmFileUpload() {
+            const input = document.getElementById('modalFileInputSelect');
+
+            if (input.files && input.files[0]) {
+                selectedProductFile = input.files[0];
+
+                // Clear URL input
+                document.getElementById('realUrlInput').value = '';
+
+                // Show Preview
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const previewContainer = document.getElementById('addProductPreview');
+                    const img = previewContainer.querySelector('img');
+                    const placeholder = previewContainer.querySelector('div');
+
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+
+                reader.readAsDataURL(selectedProductFile);
+
+                closeUploadModals();
+            }
+
+            else {
+                alert('Pilih file terlebih dahulu!');
+            }
+        }
+
+        function confirmUrlUpload() {
+            const url = document.getElementById('modalUrlInputSelect').value.trim();
+
+            if (url) {
+                // Clear File
+                selectedProductFile = null;
+
+                // Set URL input
+                document.getElementById('realUrlInput').value = url;
+
+                // Show Preview
+                const previewContainer = document.getElementById('addProductPreview');
+                const img = previewContainer.querySelector('img');
+                const placeholder = previewContainer.querySelector('div');
+
+                img.src = url;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+
+                closeUploadModals();
+            }
+
+            else {
+                alert('Masukkan URL terlebih dahulu!');
+            }
+        }
+
+
+        function initDeletePopover() {
+            const btn = document.getElementById('btnDeleteTrigger');
+
+            if (btn) {
+                deletePopover = new bootstrap.Popover(btn, {
+                    trigger: 'click',
+                    html: true,
+                    title: 'Anda yakin?',
+                    sanitize: false,
+                    content: ` <div class="d-flex justify-content-between gap-2" > <button class="btn btn-sm btn-secondary" onclick="hideDeletePopover()" >Batal</button> <button class="btn btn-sm btn-danger" onclick="executeDelete()" >Ya, Hapus</button> </div> `,
+                    placement: 'top'
+                });
+            }
+        }
+
+        function hideDeletePopover() {
+            if (deletePopover) deletePopover.hide();
+        }
+
+        // Updated onSelect to hide popover if open
+        function onDeleteProductSelect() {
+            if (deletePopover) deletePopover.hide();
+
+            const id = document.getElementById('deleteProductSelect').value;
+            const product = userProducts.find(p => p.id == id);
+
+            if (product) {
+                document.getElementById('delProdName').textContent = product.product_name;
+                document.getElementById('delProdPrice').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(product.product_price);
+                document.getElementById('delProdStock').textContent = product.product_stock;
+
+                // Handle Image
+                const img = document.getElementById('delProdImg');
+                const imagePath = product.product_image && product.product_image.trim() !== '' ? product.product_image : '/images/no-image.svg';
+                img.src = imagePath;
+
+                img.onerror = function () {
+                    this.src = '/images/no-image.svg';
+                }
+
+                    ;
+
+                document.getElementById('deleteProductDetail').classList.remove('d-none');
+
+                // Re-init popover if needed (safe to call multiple times or check existence)
+                // In Bootstrap 5, existing popover instance persists.
+            }
+        }
+
+        function executeDelete() {
+            const id = document.getElementById('deleteProductSelect').value;
+            if (!id) return;
+
+            // Hide popover immediately
+            hideDeletePopover();
+
+            fetch('/api/product/' + id, {
+                method: 'DELETE'
+
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    showAlert('Produk berhasil dihapus!', 'success');
+                    loadUserProducts(); // Refresh list
+                    loadStats(); // Update dashboard stats
+                    // Reset forms
+                    document.getElementById('deleteProductDetail').classList.add('d-none');
+                    document.getElementById('deleteProductSelect').value = "";
+                }
+
+                else {
+                    showAlert('Gagal menghapus: ' + data.message, 'danger');
+                }
+            }).catch(err => console.error('Error deleting:', err));
+        }
+
+        // Update Product Functions
+        function onUpdateProductSelect() {
+            const id = document.getElementById('updateProductSelect').value;
+            const product = userProducts.find(p => p.id == id);
+            const form = document.getElementById('updateProductForm');
+
+            if (product) {
+                form.classList.remove('d-none');
+
+                document.getElementById('updateId').value = product.id;
+                document.getElementById('updateName').value = product.product_name;
+                document.getElementById('updateStock').value = product.product_stock;
+
+                // Format Price
+                const priceInput = document.getElementById('updatePrice');
+                priceInput.value = product.product_price;
+                formatPrice(priceInput);
+
+                document.getElementById('updateNotes').value = product.product_notes || '';
+
+                // Image Preview
+                const img = document.getElementById('updateProdImg');
+                let imagePath = product.product_image && product.product_image.trim() !== '' ? product.product_image : '/images/no-image.svg';
+
+                // Append timestamp to force reload
+                imagePath += `?t=${new Date().getTime()}`;
+
+                img.src = imagePath;
+
+                img.onerror = function () {
+                    this.src = '/images/no-image.svg';
+                };
+            }
+
+            else {
+                form.classList.add('d-none');
+            }
+        }
+
+        function updateProduct() {
+            const form = document.getElementById('updateProductForm');
+            const formData = new FormData(form);
+            const id = document.getElementById('updateProductSelect').value;
+
+            if (!id) return;
+
+            // Clean price format (remove dots)
+            const price = formData.get('product_price').replace(/\./g, '');
+            formData.set('product_price', price);
+
+            fetch('/api/product/update/' + id, {
+                method: 'POST',
+                body: formData
+
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    showAlert('Produk berhasil diupdate!', 'success');
+
+                    // Wait for fresh data, then refresh the form to show new image
+                    loadUserProducts().then(() => {
+                        loadStats(); // Update stats
+                        onUpdateProductSelect(); // Re-populate form with new image
+                    });
+                }
+
+                else {
+                    showAlert('Gagal update: ' + data.message, 'danger');
+                }
+            }).catch(err => console.error('Error updating:', err));
+        }
+
+        // Format Price Helper
+        function formatPrice(input) {
+            let value = input.value.replace(/\D/g, ''); // Remove non-digits
+
+            if (value) {
+                value = new Intl.NumberFormat('id-ID').format(value);
+                input.value = value;
+            }
+        }
+
+        // Get Greeting Helper
+        function loadStats() {
+            fetch('/api/stats').then(response => response.json()).then(data => {
+                if (data.success) {
+                    document.getElementById('totalProducts').textContent = data.total_products;
+                    document.getElementById('totalStock').textContent = data.total_stock;
+                    document.getElementById('ratingStore').textContent = data.rating;
+                    document.getElementById('totalCompleted').textContent = data.total_completed;
+                    document.getElementById('totalPending').textContent = data.total_pending;
+                }
+            }).catch(error => console.error('Error loading stats:', error));
+        }
+
+        function getGreeting() {
+            const hour = new Date().getHours();
+
+            if (hour >= 5 && hour < 11) {
+                return '🌅 Selamat Pagi';
+            }
+
+            else if (hour >= 11 && hour < 15) {
+                return '☀️ Selamat Siang';
+            }
+
+            else if (hour >= 15 && hour < 18) {
+                return '🌇 Selamat Sore';
+            }
+
+            else {
+                return '🌙 Selamat Malam';
+            }
+        }
+
+        // --- Sidebar Function ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const icon = document.getElementById('sidebarToggleIcon');
+
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('collapsed');
+
+            // Toggle Icon
+            if (sidebar.classList.contains('collapsed')) {
+                icon.classList.remove('bi-chevron-left');
+                icon.classList.add('bi-chevron-right');
+            } else {
+                icon.classList.remove('bi-chevron-right');
+                icon.classList.add('bi-chevron-left');
+            }
+        }
+
+        // --- Theme Functions ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeUI(savedTheme);
+        }
+
+        function toggleTheme(e) {
+            if (e) e.preventDefault();
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeUI(newTheme);
+        }
+
+        function updateThemeUI(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+
+            if (theme === 'dark') {
+                icon.className = 'bi bi-sun me-2';
+                text.textContent = 'Light Mode';
+            }
+
+            else {
+                icon.className = 'bi bi-moon-stars me-2';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        // --- Order Management Logic ---
+        let orders = [];
+        let currentIsArchived = false;
+
+        function loadOrders(isArchived = false) {
+            currentIsArchived = isArchived;
+            fetch(`/api/orders?archived=${isArchived}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        orders = data.orders;
+                        renderOrderTable(orders);
+
+                        // Update Header Title based on view
+                        const title = document.querySelector('#order-view h3');
+                        if (title) title.textContent = isArchived ? 'Riwayat Pesanan Selesai' : 'Pesanan Masuk';
+                    }
+                })
+                .catch(err => console.error('Error loading orders:', err));
+        }
+
+        function renderOrderTable(data) {
+            const tbody = document.querySelector('#order-view table tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                const emptyMsg = currentIsArchived ? 'Belum ada riwayat pesanan selesai.' : 'Belum ada order yang masuk.';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            ${emptyMsg}
+                        </td>
+                    </tr> `;
+                return;
+            }
+
+            data.forEach(order => {
+                const tr = document.createElement('tr');
+
+                // Format Date: YYYY-MM-DD -> DD/MM/YYYY
+                const dateObj = new Date(order.date_order);
+                const dateStr = dateObj.toLocaleDateString('id-ID', {
+                    day: '2-digit', month: '2-digit', year: 'numeric'
+                });
+
+                // Status Badge Logic
+                let badgeClass = 'bg-secondary';
+                if (order.status_order === 'Menunggu Pembayaran') badgeClass = 'bg-warning text-dark';
+                else if (order.status_order === 'Disiapkan') badgeClass = 'bg-info text-dark';
+                else if (order.status_order === 'Makanan Siap') badgeClass = 'bg-primary';
+                else if (order.status_order === 'Menunggu Kurir') badgeClass = 'bg-secondary';
+                else if (order.status_order === 'Order Selesai') badgeClass = 'bg-success';
+
+                tr.innerHTML = `
+                    <td>${order.order_id}</td>
+                    <td>${order.customer}</td>
+                    <td>${dateStr}</td>
+                    <td>${order.product_ordered}</td>
+                    <td>Rp ${new Intl.NumberFormat('id-ID').format(order.total_price)}</td>
+                    <td>${order.quantity}</td>
+                    <td><span class="badge ${badgeClass}">${order.status_order}</span></td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary" onclick="openOrderModal(${order.id})">
+                            <i class="bi bi-gear me-1"></i>Manage
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openOrderModal(id) {
+            const order = orders.find(o => o.id == id);
+            if (!order) return;
+
+            document.getElementById('modalOrderInternalId').value = order.id;
+            document.getElementById('modalOrderIdText').textContent = order.order_id;
+            document.getElementById('modalOrderCustomer').textContent = order.customer;
+
+            // Format Date
+            const dateObj = new Date(order.date_order);
+            const dateStr = dateObj.toLocaleDateString('id-ID', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+            document.getElementById('modalOrderDate').textContent = dateStr;
+
+            document.getElementById('modalOrderProduct').textContent = order.product_ordered;
+            document.getElementById('modalOrderTotal').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(order.total_price);
+            document.getElementById('modalOrderQty').textContent = order.quantity;
+            document.getElementById('modalOrderStatusText').textContent = order.status_order; // Populate read-only text
+            document.getElementById('modalOrderStatus').value = order.status_order;
+
+            // Handle Hapus Button Visibility & Read-Only Mode
+            const btnArchive = document.getElementById('btnArchiveOrder');
+            const btnUpdate = document.getElementById('btnUpdateOrder');
+            const statusContainer = document.getElementById('updateStatusContainer');
+
+            if (currentIsArchived) {
+                // Archived View: Read-Only
+                statusContainer.style.display = 'none';
+                btnUpdate.classList.add('d-none');
+                btnArchive.classList.add('d-none');
+            } else {
+                // Active View: Editable
+                statusContainer.style.display = 'block';
+                btnUpdate.classList.remove('d-none');
+
+                // Show Archive button only if Completed in Active view
+                if (order.status_order === 'Order Selesai') {
+                    btnArchive.classList.remove('d-none');
+                    btnUpdate.classList.remove('w-100');
+                    btnUpdate.classList.add('w-50');
+                } else {
+                    btnArchive.classList.add('d-none');
+                    btnUpdate.classList.remove('w-50');
+                    btnUpdate.classList.add('w-100');
+                }
+            }
+
+            const modal = document.getElementById('orderModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeOrderModal() {
+            const modal = document.getElementById('orderModal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        function updateOrderStatus() {
+            const id = document.getElementById('modalOrderInternalId').value;
+            const status = document.getElementById('modalOrderStatus').value;
+
+            fetch('/api/order/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, status })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update local data immediate feedback
+                        const order = orders.find(o => o.id == id);
+                        if (order) order.status_order = status;
+
+                        renderOrderTable(orders); // Re-render to update badge
+                        closeOrderModal();
+
+                        // Re-open if crucial? User said "update... baru bisa hapus". 
+                        // Usually closing is better UX. User can reopen manage if they want to delete.
+                    } else {
+                        alert('Gagal update status');
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        function archiveOrder() {
+            // Replace native confirm with custom modal
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        function executeArchiveOrder() {
+            const id = document.getElementById('modalOrderInternalId').value;
+
+            fetch('/api/order/archive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeConfirmationModal();
+                        closeOrderModal();
+                        loadOrders(currentIsArchived); // Refresh list
+                    } else {
+                        alert('Gagal mengarsipkan order');
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        // Close Modals on Escape Key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "Escape") {
+                const orderModal = document.getElementById('orderModal');
+                const confirmModal = document.getElementById('confirmationModal');
+                const uploadModal = document.getElementById('uploadModal'); // Lightbox
+
+                // Close Confirmation Modal first if open (z-index highest)
+                if (confirmModal.classList.contains('show')) {
+                    closeConfirmationModal();
+                    return;
+                }
+
+                // Close Order Modal
+                if (orderModal.classList.contains('show')) {
+                    closeOrderModal();
+                    return;
+                }
+
+                // Close Upload/Lightbox Modal
+                if (uploadModal && uploadModal.classList.contains('show')) {
+                    closeUploadModal();
+                }
+            }
+        });
+
+    </script>
 </body>
 
 </html>

@@ -19,13 +19,17 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         const data = await response.json();
 
         if (response.ok) {
+            const welcomeMessage = data.shop_name
+                ? `Selamat datang ${data.shop_name}!`
+                : data.message;
+
             alertMessage.innerHTML = `<div class="alert alert-success d-flex align-items-center" role="alert">
                 <i class="bi bi-check-circle-fill me-2"></i>
-                <div>${data.message}</div>
+                <div>${welcomeMessage}</div>
             </div>`;
             setTimeout(() => {
                 window.location.href = '/dashboard';
-            }, 3000); // 1s delay to show success message
+            }, 3000); // 3s delay to show success message
         } else {
             alertMessage.innerHTML = `<div class="alert alert-danger d-flex align-items-center" role="alert">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
