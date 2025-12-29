@@ -11,7 +11,7 @@ CREATE TABLE account (
 );
 
 -- table customer order
-CREATE TABLE account (
+CREATE TABLE customer_order (
     id INT PRIMARY KEY AUTO_INCREMENT,
     order_id VARCHAR(50) NOT NULL,
     customer VARCHAR(100) NOT NULL,
