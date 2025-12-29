@@ -1301,12 +1301,6 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `created_at`) VALUES
 --
 
 --
--- Indexes for table `account`
---
-ALTER TABLE `account`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `addresses`
 --
 ALTER TABLE `addresses`
@@ -1420,16 +1414,6 @@ ALTER TABLE `stores`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `account`
---
-ALTER TABLE `account`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `addresses`
@@ -1590,8 +1574,6 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-ALTER TABLE `account`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `addresses`
