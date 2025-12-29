@@ -63,4 +63,4 @@ jobs:
         with:
           app-name: 'client-easyfood'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E09AABA48D7F43EAAC003491F057D45E }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A30C44AAAF614B599BFA9554022B31E7 }}
