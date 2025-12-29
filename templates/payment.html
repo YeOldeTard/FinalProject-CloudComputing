@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Easy Food – Payment</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style_payment.css') }}">
+  <script src="{{ url_for('static', filename='js/payment.js') }}" defer></script>
+
+  <script 
+    src="https://app.sandbox.midtrans.com/snap/snap.js"
+    data-client-key="Mid-client-8jxR4D7IkFDCgr7y">
+  </script>
+</head>
+
+<body>
+  <header class="header">
+    <div class="header-left">
+      <img 
+        src="{{ url_for('static', filename='assets/images/easyfood_logo.png') }}"
+        alt="Easy Food"
+        class="logo">
+    </div>
+  </header>
+
+  <main class="container center" data-order-id="{{ order_id }}">
+    <div class="card payment-card">
+
+      <a href="/" class="back-link">← Back</a>
+
+      <h2>Payment</h2>
+
+      <!-- DRIVER INFO -->
+      <div class="driver-box" id="driverBox" style="display:none">
+        <img src="https://i.pravatar.cc/50" alt="Driver">
+        <div>
+          <p class="driver-name" id="driverName"></p>
+          <p class="driver-eta" id="driverEta"></p>
+        </div>
+      </div>
+
+      <!-- SPLIT BILL -->
+      <div class="card form-box hidden" id="splitBillSection">
+        <p class="section-title">Who is paying?</p>
+        <div id="splitPeopleContainer"></div>
+      </div>
+
+      <!-- PAYMENT BOX -->
+      <div class="card form-box slide-in" id="paymentBox">
+        <p class="section-title">Payment</p>
+        <button class="btn primary" id="payNowBtn">Pay Now</button>
+      </div>
+
+      <!-- AMOUNT SUMMARY -->
+      <div class="summary-box">
+        <div class="row">
+          <span>Subtotal</span>
+          <span id="subtotalText">-</span>
+        </div>
+
+        <div class="row">
+          <span>Delivery Fee</span>
+          <span id="deliveryFeeText">-</span>
+        </div>
+
+        <div class="row night-delivery" id="nightFeeRow" style="display:none">
+            <span>Night Delivery Fee (22:00-06:00)</span>
+            <span id="nightFeeText">-</span>
+        </div>
+
+        <div class="row total">
+          <span>Total</span>
+          <span id="amountText">-</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Easy Food – Checkout</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+</head>
+<body>
+
+<header class="header">
+  <img src="{{ url_for('static', filename='images/logo.jpeg') }}" class="logo" alt="Easy Food">
+</header>
+
+<div class="container">
+
+  <h1>🛒 Order & Delivery</h1>
+
+  <!-- ORDER SUMMARY -->
+  <section class="card">
+    <h2>Order Summary</h2>
+    <div id="orderItems"></div>
+    <div id="totalBox" class="total-box"></div>
+
+    <div class="split-toggle">
+      <input type="checkbox" id="splitToggle">
+      <label for="splitToggle">Split bill with friends</label>
+    </div>
+
+    <div id="splitSection" class="split-section">
+      <div class="add-person">
+        <input type="text" id="personName" placeholder="Nama orang">
+        <button id="addPersonBtn">Tambah</button>
+      </div>
+
+      <div id="peopleList"></div>
+    </div>
+
+  </section>
+
+  <!-- DRIVER -->
+  <section class="card">
+    <h2>Choose Driver</h2>
+    <div class="driver-grid" id="driverList"></div>
+  </section>
+
+  <button class="primary" id="confirmBtn">Confirm Order</button>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+:root {
+  --orange:#ff5a00;
+  --soft:#fff1e6;
+  --bg:#fffaf3;
+  --border:#e5e7eb;
+  --text:#1f2937;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,Arial;
+  background:radial-gradient(circle at right,#fff3e6,var(--bg));
+  color:var(--text);
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  padding:16px 24px;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+}
+.logo{height:32px}
+
+/* LAYOUT */
+.container{
+  max-width:720px;
+  margin:40px auto;
+  padding:0 20px;
+}
+
+h1{text-align:center;margin-bottom:24px}
+
+/* CARD */
+.card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 10px 24px rgba(0,0,0,.08);
+}
+
+/* ITEMS */
+.item{
+  display:flex;
+  justify-content:space-between;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+/* TOTAL */
+.total-box{
+  background:var(--soft);
+  border:1px solid #ffccaa;
+  border-radius:12px;
+  padding:14px;
+  margin:16px 0;
+  display:flex;
+  justify-content:space-between;
+  font-weight:600;
+}
+
+/* SPLIT */
+.split-section {
+  display: none;
+  margin-top: 15px;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+}
+
+.split-section.active {
+  display: block;
+}
+
+.split-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.split-control button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  background: #ff7a00;
+  color: white;
+}
+
+.split-control button:disabled {
+  background: #ddd;
+  cursor: not-allowed;
+}
+
+
+#splitResult div {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.split-toggle{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin:14px 0;
+  cursor:pointer;
+}
+
+#splitSection{
+  display:none;
+}
+#splitSection.active{
+  display:block;
+}
+
+.add-person{
+  display:flex;
+  gap:10px;
+  margin-bottom:12px;
+}
+.add-person input{
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+}
+.add-person button{
+  background:var(--orange);
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* PERSON */
+.person{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:12px;
+}
+.person strong{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+/* SPLIT BILL QTY MODE */
+.person-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.qty-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px dashed #eee;
+}
+
+.qty-row:last-child {
+  border-bottom: none;
+}
+
+.qty-row span {
+  font-size: 14px;
+}
+
+.qty-row input[type="number"] {
+  width: 70px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  text-align: center;
+  font-weight: 500;
+}
+
+.qty-row input:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+
+/* DRIVER */
+.driver-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px;
+}
+.driver{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  cursor:pointer;
+  transition:.2s;
+}
+.driver:hover{transform:translateY(-2px)}
+.driver.active{
+  border-color:var(--orange);
+  background:var(--soft);
+}
+
+/* BUTTON */
+.primary{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  background:var(--orange);
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.fast {
+  color: #16a34a;
+  font-weight: 600;
+}

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Easy Food</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- FLASK STATIC -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+
+<div class="desktop-layout">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="desktop-sidebar">
+
+    <!-- LOGO -->
+    <div class="sidebar-logo-area">
+      <img src="{{ url_for('static', filename='assets/images/logo.jpeg') }}" alt="Easy Food Logo" class="app-logo">
+    </div>
+
+    <!-- NAV -->
+    <nav class="sidebar-nav-menu">
+      <a href="#" class="nav-item active" data-page="home">
+        <i class="fas fa-home"></i> Beranda
+      </a>
+      <a href="#" class="nav-item" data-page="search">
+        <i class="fas fa-search"></i> Cari
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-heart"></i> Favorit
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-inbox"></i> Inbox
+      </a>
+    </nav>
+
+    <!-- ===== SIDEBAR PROFILE (BOTTOM) ===== -->
+    <div class="sidebar-profile">
+
+      <div class="profile-info">
+        <img
+          src="{{ url_for('static', filename='assets/images/profile.jpg') }}"
+          class="profile-avatar">
+
+        <div class="profile-text">
+          <span class="profile-name">Pengguna</span>
+          <span class="profile-email">guest@easyfood.app</span>
+        </div>
+      </div>
+
+      <button class="profile-action-btn" id="loginBtn">
+        <i class="fas fa-sign-in-alt"></i>
+        <span>Login</span>
+      </button>
+
+    </div>
+
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main-content-wrapper">
+    <main class="app-main-content">
+
+      <!-- HEADER -->
+      <div class="user-greeting-area">
+        <span class="greeting" id="userNameGreeting">Halo, Pengguna!</span>
+        <div class="location-chip">
+          <i class="fas fa-map-marker-alt"></i>
+          <span id="userLocationText">Mencari lokasi...</span>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <section class="search-bar">
+        <div class="search-input-group">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Cari restoran atau menu lalu tekan Enter">
+        </div>
+      </section>
+
+      <!-- QUICK ACCESS -->
+      <section class="quick-access-menu">
+        <div class="category-item" data-action="fast">
+          <i class="fas fa-bolt"></i> Cepat
+        </div>
+        <div class="category-item" data-action="promo">
+          <i class="fas fa-tags"></i> Promo
+        </div>
+        <div class="category-item" data-action="vegan">
+          <i class="fas fa-leaf"></i> Vegan
+        </div>
+        <div class="category-item" data-action="near">
+          <i class="fas fa-map-marked-alt"></i> Terdekat
+        </div>
+      </section>
+
+      <section class="recommendation-section" id="recommendationSection">
+      </section>
+
+      <!-- CONTENT -->
+      <section class="content-feed" id="contentFeed"></section>
+
+    </main>
+  </div>
+
+  <!-- ================= CART ================= -->
+  <aside class="desktop-detail-panel">
+    <h2>Keranjang</h2>
+
+    <div class="cart-summary" id="cartItems">
+      <p class="empty-cart">Belum ada pesanan</p>
+    </div>
+
+    <div class="cart-total">
+      <h4>Total</h4>
+      <strong id="cartTotal">Rp 0</strong>
+    </div>
+
+    <button class="checkout-btn" onclick="goToCheckout()">Checkout</button>
+  </aside>
+
+</div>
+
+<!-- ================= LOGIN MODAL ================= -->
+<div class="login-modal hidden" id="loginModal">
+  <div class="login-card">
+
+    <h2>Masuk ke Easy Food</h2>
+
+    <form id="loginForm">
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" required>
+      </div>
+
+      <button type="submit" class="login-submit-btn">
+        Login
+      </button>
+    </form>
+
+    <!-- REGISTER LINK -->
+    <div class="register-link">
+      <span>Belum punya akun?</span>
+      <button type="button" onclick="openRegister()">Daftar</button>
+    </div>
+
+    <button class="login-close" onclick="closeLoginModal()">✕</button>
+
+  </div>
+</div>
+<!-- ================= REGISTER MODAL ================= -->
+<div class="login-modal hidden" id="registerModal">
+  <div class="login-card">
+
+    <h2>Daftar Akun</h2>
+
+    <div class="input-group">
+        <label>Nama <span style="color:red">*</span></label>
+        <input type="text" id="regName" required minlength="3">
+        <small class="form-hint">Minimal 3 karakter</small>
+    </div>
+
+    <div class="input-group">
+        <label>Email <span style="color:red">*</span></label>
+        <input type=  "email" id="regEmail" required 
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+              title="Contoh: nama@gmail.com">
+        <small class="form-hint">Format: nama@domain.com</small>
+    </div>
+
+    <div class="input-group">
+        <label>Password <span style="color:red">*</span></label>
+        <input type="password" id="regPassword" required minlength="6">
+        <small class="form-hint">Minimal 6 karakter</small>
+    </div>
+
+    <button class="login-submit-btn" onclick="registerUser()">
+      Daftar
+    </button>
+
+    <button class="login-close" onclick="closeRegister()">✕</button>
+
+  </div>
+</div>
+
+
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</html>

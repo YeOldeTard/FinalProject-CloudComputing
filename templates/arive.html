@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Easy Food – Live Tracking</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/arive_style.css') }}">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Routing -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">🍴</div>
+    <span>easy food</span>
+  </div>
+  <div class="night">🌙 Night Order - Higher pricing applies</div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT PANEL -->
+  <div class="left">
+
+    <div class="map-card">
+      <div id="map"></div>
+    </div>
+
+    <div class="driver-card">
+      <img src="https://i.pravatar.cc/80">
+      <div class="driver-info">
+        <strong>John Smith</strong>
+        <span>Your delivery driver</span>
+      </div>
+      <div class="eta" id="eta">-- min</div>
+    </div>
+
+    <div class="progress">
+      <div class="progress-bar"></div>
+    </div>
+
+    <div class="order-status">
+
+      <div class="status-item">
+        <div class="icon">📦</div>
+        <div class="text">
+          <strong>Order Confirmed</strong>
+          <span>Your order has been received</span>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="icon">🍳</div>
+        <div class="text">
+          <strong>Preparing Food</strong>
+          <span>Restaurant is preparing your meal</span>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="icon">🚴</div>
+        <div class="text">
+          <strong>Out for Delivery</strong>
+          <span>Driver is on the way</span>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="icon">🏠</div>
+        <div class="text">
+          <strong>Delivered</strong>
+          <span>Enjoy your food</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right">
+
+    <div class="chat-header">
+      <img src="https://i.pravatar.cc/60">
+      <div class="chat-user">
+        <strong>John Smith</strong>
+        <span class="online">● Online</span>
+      </div>
+      <button class="call">📞</button>
+    </div>
+
+    <div class="chat-body">
+      <div class="bubble left">
+        Hi! I have picked up your order and on my way!
+        <span>2:34 PM</span>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input type="text" placeholder="Type a message...">
+      <button>➤</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- JS -->
+<script>
+  const ORDER_ID = "{{ order_id }}";
+</script>
+<script src="{{ url_for('static', filename='js/ai-chat-config.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ai-chat-engine.js') }}"></script>
+<script src="{{ url_for('static', filename='js/arive.js') }}"></script>
+</body>
+</html>
