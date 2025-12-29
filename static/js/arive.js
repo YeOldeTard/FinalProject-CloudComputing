@@ -1,5 +1,5 @@
 /* ================= CONFIG ================= */
-const API_URL = "client-easyfood-anhrasg7d6a2azb9.indonesiacentral-01.azurewebsites.net";
+// const API_URL = "client-easyfood-anhrasg7d6a2azb9.indonesiacentral-01.azurewebsites.net";
 const orderId = ORDER_ID;
 const POLL_INTERVAL = 4000;
 const SPEED_KMH = 1000;
@@ -957,3 +957,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 100);
 
 });
+
