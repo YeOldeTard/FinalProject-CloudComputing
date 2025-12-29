@@ -38,6 +38,11 @@ NIGHT_DELIVERY_FEE = 3000
 NIGHT_START_HOUR = 22
 NIGHT_END_HOUR = 6
 
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "admin_jawa1")
+DB_HOST = os.getenv("DB_HOST", "admin_jawa")
+DB_NAME = os.getenv("DB_NAME", "easyfood_db")
+
 # Konfigurasi Database
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/easyfood_db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -1251,3 +1256,4 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(debug=True, port=5000)
+
