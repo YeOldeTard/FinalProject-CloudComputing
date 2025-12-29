@@ -1,10 +1,10 @@
 const mysql = require('mysql2');
 
 const db = mysql.createConnection({
-    host: 'server.yudhonet.id',
-    user: 'yudhopatrianto',
-    password: '123',
-    database: 'db_easyfood',
+    host: 'easyfood.mysql.database.azure.com',
+    user: 'admin_jawa',
+    password: 'admin_jawa1',
+    database: 'easyfood_db',
     port: 3306  
 });
 
