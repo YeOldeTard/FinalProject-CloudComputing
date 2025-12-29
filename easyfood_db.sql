@@ -601,8 +601,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `created_at`) VALUES
 --
 -- Indexes for table `account`
 --
-ALTER TABLE `account`
-  ADD PRIMARY KEY (`id`);
+
 
 --
 -- Indexes for table `addresses`
