@@ -535,11 +535,12 @@
                         <label for="modalOrderStatus"
                             class="form-label fw-bold small text-muted text-uppercase mb-2">Update Status</label>
                         <select class="form-select form-select-lg rounded-3" id="modalOrderStatus">
-                            <option value="Menunggu Pembayaran">Menunggu Pembayaran</option>
+                            <option value="WAITING_PAYMENT">Waiting Payment</option>
+                            <option value="WAITING_SPLIT_PAYMENT">Waiting Split Payment</option>
+                            <option value="Order_Confirmed">Order Confirmed</option>
                             <option value="Disiapkan">Disiapkan</option>
                             <option value="Makanan Siap">Makanan Siap</option>
-                            <option value="Menunggu Kurir">Menunggu Kurir</option>
-                            <option value="Order Selesai">Order Selesai</option>
+                            <option value="Delivered">Order Selesai (Delivered)</option>
                         </select>
                     </div>
                 </div>
@@ -585,10 +586,10 @@
             <li><a href="#submenuOrder" data-bs-toggle="collapse" class="nav-link text-white"><i
                         class="bi bi-cart me-2"></i><span>Order</span></a>
                 <ul class="collapse nav flex-column ms-3" id="submenuOrder" style="list-style: none; padding-left: 0;">
-                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('order'); loadOrders(false)"><i
+                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('order', false)"><i
                                 class="bi bi-hourglass-split me-2"></i><span>Pesanan Masuk</span></a>
                     </li>
-                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('order'); loadOrders(true)"><i
+                    <li><a href="#" class="nav-link text-white-50 p-1" onclick="showView('order', true)"><i
                                 class="bi bi-archive me-2"></i><span>Pesanan Selesai</span></a></li>
                 </ul>
             </li>
@@ -620,8 +621,8 @@
                             <h4 id="greetingText" class="mb-4 fw-bold text-dark">Welcome</h4>
 
                             <!-- Section 1: Performa Toko -->
-                            <h4 class="mb-4 fw-bold text-dark">Performa Toko</h4>
-                            <div class="row g-4 justify-content-start mb-4">
+                            <h4 class="mb-4 fw-bold text-dark text-center">Performa Toko</h4>
+                            <div class="row g-4 justify-content-center mb-4">
                                 <!-- Completed Orders Card -->
                                 <div class="col-md-4 col-lg-3">
                                     <div class="stat-card text-center h-100"><i
@@ -638,12 +639,20 @@
                                         <p class="text-muted mb-0 small">Menunggu Pembayaran</p>
                                     </div>
                                 </div>
-                                <!-- Rating Card -->
+                                <!-- Split Bill Card (New) -->
                                 <div class="col-md-4 col-lg-3">
                                     <div class="stat-card text-center h-100"><i
-                                            class="bi bi-star-fill fs-1 text-warning mb-3 d-block"></i>
-                                        <h3 id="ratingStore" class="fs-4 fw-bold text-dark">N/A</h3>
-                                        <p class="text-muted mb-0 small">Rating Toko</p>
+                                            class="bi bi-pie-chart-fill fs-1 text-warning mb-3 d-block"></i>
+                                        <h3 id="totalSplitBill" class="fs-4 fw-bold text-dark">0</h3>
+                                        <p class="text-muted mb-0 small">Waiting Split Bill</p>
+                                    </div>
+                                </div>
+                                <!-- Confirmed Orders Card (New) -->
+                                <div class="col-md-4 col-lg-3">
+                                    <div class="stat-card text-center h-100"><i
+                                            class="bi bi-bag-check-fill fs-1 text-success mb-3 d-block"></i>
+                                        <h3 id="totalConfirmed" class="fs-4 fw-bold text-dark">0</h3>
+                                        <p class="text-muted mb-0 small">Pesanan Dikonfirmasi</p>
                                     </div>
                                 </div>
                             </div>
@@ -652,9 +661,9 @@
                             <hr class="my-5" style="opacity: 0.1; border-top: 2px solid currentColor;">
 
                             <!-- Section 2: Produk -->
-                            <h4 class="mb-4 fw-bold text-dark">Produk</h4>
-                            <div class="row g-4 justify-content-start">
-                                <!-- Produk Card -->
+                            <h4 class="mb-4 fw-bold text-dark text-center">Produk</h4>
+                            <div class="row g-4 justify-content-center">
+                                <!-- Produk Card only -->
                                 <div class="col-md-4 col-lg-3">
                                     <div class="stat-card text-center h-100"><i
                                             class="bi bi-box-seam fs-1 text-primary mb-3 d-block"></i>
@@ -663,14 +672,17 @@
                                         <p class="text-muted mb-0 small">Total Produk</p>
                                     </div>
                                 </div>
-                                <!-- Stock Card -->
-                                <div class="col-md-4 col-lg-3">
-                                    <div class="stat-card text-center h-100"><i
-                                            class="bi bi-layers-fill fs-1 text-success mb-3 d-block"></i>
-                                        <h3 id="totalStock" class="fs-4 fw-bold text-dark">
-                                            ...</h3>
-                                        <p class="text-muted mb-0 small">Jumlah Stok</p>
-                                    </div>
+                            </div>
+                            <!-- Pagination Controls -->
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <span id="pageInfo" class="text-white-50 small">Page 1</span>
+                                </div>
+                                <div>
+                                    <button id="btnPrevPage" class="btn btn-sm btn-outline-light me-1"
+                                        onclick="changePage(-1)" disabled>Previous</button>
+                                    <button id="btnNextPage" class="btn btn-sm btn-outline-light"
+                                        onclick="changePage(1)">Next</button>
                                 </div>
                             </div>
                         </section>
@@ -686,16 +698,9 @@
                             <div class="mb-3"><label class="form-label">Nama
                                     Produk</label><input type="text" class="form-control" name="product_name" required>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Stok</label><input type="number"
-                                        class="form-control" name="product_stock" required>
-                                </div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Harga
-                                        (Rp)</label><input type="text" class="form-control" name="product_price"
-                                        oninput="formatPrice(this)" required></div>
-                            </div>
-                            <div class="mb-3"><label class="form-label">Catatan</label><textarea class="form-control"
-                                    name="product_notes" rows="3"></textarea></div>
+                            <div class="mb-3"><label class="form-label">Harga
+                                    (Rp)</label><input type="text" class="form-control" name="product_price"
+                                    oninput="formatPrice(this)" required></div>
                             <div class="mb-3"><label class="form-label">Foto Produk</label>
                                 <!-- Hidden inputs to store selection --><input type="file" id="realFileInput"
                                     name="product_image" class="d-none" accept="image/*"><input type="hidden"
@@ -736,13 +741,10 @@
                                         Product Name</h5>
 
                                     <div class="row">
-                                        <div class="col-6"><small
+                                        <div class="col-12"><small
                                                 class="text-uppercase text-muted fw-bold">Harga</small>
                                             <p id="delProdPrice" class="fs-5 fw-bold text-primary">Rp
                                                 0</p>
-                                        </div>
-                                        <div class="col-6"><small class="text-uppercase text-muted fw-bold">Stok</small>
-                                            <p id="delProdStock" class="fs-5 fw-bold text-dark">0</p>
                                         </div>
                                     </div><button id="btnDeleteTrigger" class="btn btn-danger mt-2"><i
                                             class="bi bi-trash me-1"></i>Hapus
@@ -767,6 +769,7 @@
                         <!-- Update Form (Hidden until product selected) -->
                         <form id="updateProductForm" class="d-none"><input type="hidden" name="product_id"
                                 id="updateId">
+
                             <div class="row align-items-center mb-4">
                                 <div class="col-md-3 text-center"><label class="form-label d-block text-start">Current
                                         Image</label><img id="updateProdImg" src="" class="img-fluid rounded mb-2"
@@ -774,25 +777,39 @@
                                 <div class="col-md-9">
                                     <div class="mb-3"><label class="form-label">Ganti Foto Produk
                                             (Opsional)</label><input type="file" class="form-control"
-                                            name="product_image" accept="image/*"><small class="text-muted">Biarkan
-                                            kosong
-                                            jika tidak ingin mengganti
-                                            gambar.</small></div>
+                                            name="product_image" accept="image/*">
+
+                                        <div class="mt-2">
+                                            <label class="form-label small text-muted">Atau gunakan URL Gambar:</label>
+                                            <input type="text" class="form-control form-control-sm"
+                                                name="product_image_url" id="updateImageUrl" placeholder="https://...">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">ID</label>
+                                    <input type="text" class="form-control" id="updateDisplayId" readonly
+                                        style="background-color: #e9ecef;">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Store ID</label>
+                                    <input type="text" class="form-control" id="updateStoreId" readonly
+                                        style="background-color: #e9ecef;">
+                                </div>
+                            </div>
+
                             <div class="mb-3"><label class="form-label">Nama
                                     Produk</label><input type="text" class="form-control" name="product_name"
                                     id="updateName" required></div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Stok</label><input type="number"
-                                        class="form-control" name="product_stock" id="updateStock" required></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Harga
-                                        (Rp)</label><input type="text" class="form-control" name="product_price"
-                                        id="updatePrice" oninput="formatPrice(this)" required>
-                                </div>
+
+                            <div class="mb-3"><label class="form-label">Harga
+                                    (Rp)</label><input type="text" class="form-control" name="product_price"
+                                    id="updatePrice" oninput="formatPrice(this)" required>
                             </div>
-                            <div class="mb-3"><label class="form-label">Catatan</label><textarea class="form-control"
-                                    name="product_notes" id="updateNotes" rows="3"></textarea></div>
+
                             <button type="button" class="btn btn-success" onclick="updateProduct()"><i
                                     class="bi bi-check-lg me-1"></i>Simpan
                                 Perubahan </button>
@@ -965,9 +982,12 @@
         }
 
         // View Switcher Function
-        function showView(viewId) {
+        function showView(viewId, param = null) {
             // Save to localStorage
             localStorage.setItem('activeView', viewId);
+            if (param !== null) {
+                localStorage.setItem('activeViewParam', JSON.stringify(param));
+            }
 
             // Hide all views
             document.getElementById('dashboard-view').style.display = 'none';
@@ -990,7 +1010,14 @@
                 loadUserProducts();
             }
             if (viewId === 'order') {
-                loadOrders();
+                // Use param if passed, otherwise try load from storage, default false
+                let isArchived = false;
+                if (param !== null) isArchived = param;
+                else {
+                    const stored = localStorage.getItem('activeViewParam');
+                    if (stored) isArchived = JSON.parse(stored);
+                }
+                loadOrders(isArchived);
             }
 
             // Update Sidebar Active State (Optional/Basic)
@@ -1333,7 +1360,7 @@
             }
         }
 
-        // Delete Product Functions
+        // Delete Product Functions (Keeping logic but beware API is not implemented for delete yet)
         let userProducts = []; // Local cache
 
         function loadUserProducts() {
@@ -1350,7 +1377,7 @@
                         data.products.forEach(prod => {
                             const option = document.createElement('option');
                             option.value = prod.id;
-                            option.textContent = prod.product_name;
+                            option.textContent = prod.name; // Changed from product_name to name
                             deleteSelect.appendChild(option);
                         });
                     }
@@ -1364,7 +1391,7 @@
                         data.products.forEach(prod => {
                             const option = document.createElement('option');
                             option.value = prod.id;
-                            option.textContent = prod.product_name;
+                            option.textContent = prod.name; // Changed from product_name to name
                             updateSelect.appendChild(option);
                         });
                     }
@@ -1510,13 +1537,19 @@
             const product = userProducts.find(p => p.id == id);
 
             if (product) {
-                document.getElementById('delProdName').textContent = product.product_name;
-                document.getElementById('delProdPrice').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(product.product_price);
-                document.getElementById('delProdStock').textContent = product.product_stock;
+                document.getElementById('delProdName').textContent = product.name; // Fixed key
+
+                // Fix Price NaN
+                const rawPrice = parseFloat(product.price);
+                const priceVal = isNaN(rawPrice) ? 0 : rawPrice;
+                document.getElementById('delProdPrice').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(priceVal);
+
+                // Stock removed as per request
+                // document.getElementById('delProdStock').textContent = product.product_stock;
 
                 // Handle Image
                 const img = document.getElementById('delProdImg');
-                const imagePath = product.product_image && product.product_image.trim() !== '' ? product.product_image : '/images/no-image.svg';
+                const imagePath = product.image && product.image.trim() !== '' ? product.image : '/images/no-image.svg'; // Fixed key
                 img.src = imagePath;
 
                 img.onerror = function () {
@@ -1568,30 +1601,45 @@
                 form.classList.remove('d-none');
 
                 document.getElementById('updateId').value = product.id;
-                document.getElementById('updateName').value = product.product_name;
-                document.getElementById('updateStock').value = product.product_stock;
+                document.getElementById('updateDisplayId').value = product.id; // New Display Field
+                document.getElementById('updateStoreId').value = product.store_id; // New Store ID Field
+
+                document.getElementById('updateName').value = product.name; // Changed from product_name
+                // document.getElementById('updateStock').value = product.product_stock; // Removed
 
                 // Format Price
                 const priceInput = document.getElementById('updatePrice');
-                priceInput.value = product.product_price;
+                // Ensure price is an integer (remove decimals like .00) before setting value
+                // otherwise formatPrice might treat decimals as part of the number string and mess up
+                const rawPrice = parseFloat(product.price);
+                priceInput.value = isNaN(rawPrice) ? '' : Math.floor(rawPrice).toString();
                 formatPrice(priceInput);
 
-                document.getElementById('updateNotes').value = product.product_notes || '';
+                // document.getElementById('updateNotes').value = product.product_notes || ''; // Removed
 
                 // Image Preview
                 const img = document.getElementById('updateProdImg');
-                let imagePath = product.product_image && product.product_image.trim() !== '' ? product.product_image : '/images/no-image.svg';
+                let imagePath = product.image && product.image.trim() !== '' ? product.image : '/images/no-image.svg'; // Changed from product_image
 
-                // Append timestamp to force reload
+                // Add cache buster
                 imagePath += `?t=${new Date().getTime()}`;
 
                 img.src = imagePath;
+
+                // Also populate URL input if it looks like a URL (basic check)
+                const urlInput = document.getElementById('updateImageUrl');
+                // Only show if it starts with http or https
+                if (product.image && (product.image.startsWith('http://') || product.image.startsWith('https://'))) {
+                    urlInput.value = product.image;
+                } else {
+                    urlInput.value = '';
+                }
+
 
                 img.onerror = function () {
                     this.src = '/images/no-image.svg';
                 };
             }
-
             else {
                 form.classList.add('d-none');
             }
@@ -1644,10 +1692,16 @@
             fetch('/api/stats').then(response => response.json()).then(data => {
                 if (data.success) {
                     document.getElementById('totalProducts').textContent = data.total_products;
-                    document.getElementById('totalStock').textContent = data.total_stock;
-                    document.getElementById('ratingStore').textContent = data.rating;
+                    // document.getElementById('totalStock').textContent = data.total_stock;
+                    // document.getElementById('ratingStore').textContent = data.rating;
                     document.getElementById('totalCompleted').textContent = data.total_completed;
                     document.getElementById('totalPending').textContent = data.total_pending;
+
+                    const splitEl = document.getElementById('totalSplitBill');
+                    if (splitEl) splitEl.textContent = data.total_waiting_split;
+
+                    const confirmedEl = document.getElementById('totalConfirmed');
+                    if (confirmedEl) confirmedEl.textContent = data.total_confirmed;
                 }
             }).catch(error => console.error('Error loading stats:', error));
         }
@@ -1726,15 +1780,20 @@
         // --- Order Management Logic ---
         let orders = [];
         let currentIsArchived = false;
+        let currentPage = 1;
+        const itemsPerPage = 10;
 
-        function loadOrders(isArchived = false) {
+        function loadOrders(isArchived = false, page = 1) {
             currentIsArchived = isArchived;
-            fetch(`/api/orders?archived=${isArchived}`)
+            currentPage = page;
+
+            fetch(`/api/orders?archived=${isArchived}&page=${page}&limit=${itemsPerPage}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
                         orders = data.orders;
                         renderOrderTable(orders);
+                        updatePaginationUI(data.orders.length);
 
                         // Update Header Title based on view
                         const title = document.querySelector('#order-view h3');
@@ -1742,6 +1801,39 @@
                     }
                 })
                 .catch(err => console.error('Error loading orders:', err));
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage < 1) return;
+            loadOrders(currentIsArchived, newPage);
+        }
+
+        function updatePaginationUI(itemsCount) {
+            const btnPrev = document.getElementById('btnPrevPage');
+            const btnNext = document.getElementById('btnNextPage');
+            const pageInfo = document.getElementById('pageInfo');
+
+            if (pageInfo) pageInfo.textContent = `Page ${currentPage}`;
+
+            if (btnPrev) btnPrev.disabled = currentPage <= 1;
+
+            // Simple next logic: if we received fewer items than limit, we are likely at end
+            // Note: This is an approximation. Ideally backend sends total pages.
+            if (btnNext) btnNext.disabled = itemsCount < itemsPerPage;
+        }
+
+        // Format Order Status
+        function formatOrderStatus(status) {
+            if (!status) return '';
+            const map = {
+                'WAITING_PAYMENT': 'Waiting Payment',
+                'WAITING_SPLIT_PAYMENT': 'Waiting Split Payment',
+                'Order_Confirmed': 'Order Confirmed',
+                'Delivered': 'Order Selesai'
+            };
+            // Fallback: Title Case and remove underscores
+            return map[status] || status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
 
         function renderOrderTable(data) {
@@ -1770,11 +1862,14 @@
 
                 // Status Badge Logic
                 let badgeClass = 'bg-secondary';
-                if (order.status_order === 'Menunggu Pembayaran') badgeClass = 'bg-warning text-dark';
-                else if (order.status_order === 'Disiapkan') badgeClass = 'bg-info text-dark';
-                else if (order.status_order === 'Makanan Siap') badgeClass = 'bg-primary';
-                else if (order.status_order === 'Menunggu Kurir') badgeClass = 'bg-secondary';
-                else if (order.status_order === 'Order Selesai') badgeClass = 'bg-success';
+                // Match actual DB values
+                if (order.status_order === 'WAITING_PAYMENT' || order.status_order === 'Menunggu Pembayaran') badgeClass = 'bg-warning text-dark';
+                else if (order.status_order === 'WAITING_SPLIT_PAYMENT') badgeClass = 'bg-warning text-dark';
+                else if (order.status_order === 'Order_Confirmed' || order.status_order === 'Makanan Siap') badgeClass = 'bg-primary';
+                else if (order.status_order === 'Disiapkan') badgeClass = 'bg-info text-dark'; // Keeping if used
+                else if (order.status_order === 'Delivered' || order.status_order === 'Order Selesai') badgeClass = 'bg-success';
+
+                const displayStatus = formatOrderStatus(order.status_order);
 
                 tr.innerHTML = `
                     <td>${order.order_id}</td>
@@ -1783,7 +1878,7 @@
                     <td>${order.product_ordered}</td>
                     <td>Rp ${new Intl.NumberFormat('id-ID').format(order.total_price)}</td>
                     <td>${order.quantity}</td>
-                    <td><span class="badge ${badgeClass}">${order.status_order}</span></td>
+                    <td><span class="badge ${badgeClass}">${displayStatus}</span></td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-primary" onclick="openOrderModal(${order.id})">
                             <i class="bi bi-gear me-1"></i>Manage
@@ -1812,7 +1907,10 @@
             document.getElementById('modalOrderProduct').textContent = order.product_ordered;
             document.getElementById('modalOrderTotal').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(order.total_price);
             document.getElementById('modalOrderQty').textContent = order.quantity;
-            document.getElementById('modalOrderStatusText').textContent = order.status_order; // Populate read-only text
+
+            // Format Status for Text Display
+            document.getElementById('modalOrderStatusText').textContent = formatOrderStatus(order.status_order);
+
             document.getElementById('modalOrderStatus').value = order.status_order;
 
             // Handle Hapus Button Visibility & Read-Only Mode
