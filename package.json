@@ -4,7 +4,7 @@
     "description": "Simple login system with Bootstrap 5 and MySQL",
     "main": "server.js",
     "scripts": {
-        "start": "nodemon server.js"
+        "start": "node server.js"
     },
     "dependencies": {
         "@popperjs/core": "^2.11.8",
