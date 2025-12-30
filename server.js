@@ -62,69 +62,72 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Configure Product Storage
-const productStorage = multer.diskStorage({
+// Configure Menu Items Storage
+const menuStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        if (!req.session.user) return cb(new Error('Unauthorized'));
-
-        const email = req.session.user.email;
-        const username = email.split('@')[0];
-        const productFolder = path.join(__dirname, 'resources', username, 'product');
-
-        // Create folder if not exists
-        fs.mkdirSync(productFolder, { recursive: true });
-
-        cb(null, productFolder);
+        // Direct to public/assets/images as requested
+        const dir = path.join(__dirname, 'public', 'assets', 'images');
+        fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
     },
     filename: function (req, file, cb) {
-        // Use original filename as requested
         cb(null, file.originalname);
     }
 });
 
-const uploadProduct = multer({ storage: productStorage });
+const uploadMenu = multer({ storage: menuStorage });
 
-// Add Product Endpoint
-// Add Product Endpoint
-app.post('/api/product/add', isAuthenticated, uploadProduct.single('product_image'), (req, res) => {
-    const { product_name, product_stock, product_price, product_notes, product_image_url } = req.body;
-    const email = req.session.user.email;
+// Add Product Endpoint (Modified for menu_items)
+app.post('/api/product/add', isAuthenticated, uploadMenu.single('product_image'), (req, res) => {
+    const { product_name, product_price } = req.body;
+    // const email = req.session.user.email; // Ignored for global menu add
 
-    if (!product_name || !product_stock || !product_price) {
+    if (!product_name || !product_price) {
         return res.status(400).json({ success: false, message: 'Required fields missing' });
     }
 
     let imagePath = null;
-
     if (req.file) {
-        const username = email.split('@')[0];
-        // Use uploaded file
-        imagePath = `/resources/${username}/product/${req.file.originalname}`;
-    } else if (product_image_url && product_image_url.trim() !== '') {
-        // Use provided URL
-        imagePath = product_image_url.trim();
+        imagePath = `assets/images/${req.file.originalname}`;
+    } else if (req.body.product_image_url) {
+        imagePath = req.body.product_image_url.trim();
     }
 
-    const query = 'INSERT INTO product (email, product_name, product_stock, product_price, product_notes, product_image) VALUES (?, ?, ?, ?, ?, ?)';
+    // Custom Logic: Get Max ID and Max StoreID
+    const getMaxIdQuery = 'SELECT MAX(id) as max_id FROM menu_items';
+    const getMaxStoreIdQuery = 'SELECT MAX(store_id) as max_store_id FROM menu_items';
 
-    db.query(query, [email, product_name, product_stock, product_price, product_notes, imagePath], (err, result) => {
-        if (err) {
-            console.error('Add product error:', err);
-            return res.status(500).json({ success: false, message: 'Database error' });
-        }
+    db.query(getMaxIdQuery, (err, idResult) => {
+        if (err) return res.status(500).json({ success: false, message: 'DB Error (Max ID)' });
 
-        res.json({ success: true, message: 'Product added successfully' });
+        const newId = (idResult[0].max_id || 0) + 1;
+
+        db.query(getMaxStoreIdQuery, (err, storeResult) => {
+            if (err) return res.status(500).json({ success: false, message: 'DB Error (Max StoreID)' });
+
+            const newStoreId = (storeResult[0].max_store_id || 0) + 1;
+
+            const insertQuery = 'INSERT INTO menu_items (id, store_id, name, price, image) VALUES (?, ?, ?, ?, ?)';
+
+            db.query(insertQuery, [newId, newStoreId, product_name, product_price, imagePath], (err, result) => {
+                if (err) {
+                    console.error('Add menu item error:', err);
+                    return res.status(500).json({ success: false, message: 'Database error' });
+                }
+                res.json({ success: true, message: 'Product added successfully' });
+            });
+        });
     });
 });
 
 
 
-// Get User Products (List for Dropdown)
+// Get User Products (List for Dropdown) - Now fetching menu_items
 app.get('/api/user/products', isAuthenticated, (req, res) => {
-    const email = req.session.user.email;
-    const query = 'SELECT * FROM product WHERE email = ? ORDER BY id DESC';
+    // const email = req.session.user.email; // Ignored for global menu access
+    const query = 'SELECT * FROM menu_items ORDER BY id ASC';
 
-    db.query(query, [email], (err, results) => {
+    db.query(query, (err, results) => {
         if (err) {
             console.error('Get products error:', err);
             return res.status(500).json({ success: false, message: 'Database error' });
@@ -133,65 +136,36 @@ app.get('/api/user/products', isAuthenticated, (req, res) => {
     });
 });
 
-// Delete Product Endpoint
+// Delete Product Endpoint (Skipping full migration for now as focus is Update. Keeping generic error if used on menu_items without logic change)
 app.delete('/api/product/:id', isAuthenticated, (req, res) => {
-    const productId = req.params.id;
-    const email = req.session.user.email;
-
-    // First get the image path to delete the file
-    const getQuery = 'SELECT product_image FROM product WHERE id = ? AND email = ?';
-    db.query(getQuery, [productId, email], (err, results) => {
+    // Legacy logic... or should we disable? 
+    // Allowing delete might be dangerous if logic mismatches. 
+    // Returning error for safety until requested.
+    // Delete from menu_items
+    const deleteQuery = 'DELETE FROM menu_items WHERE id = ?';
+    db.query(deleteQuery, [req.params.id], (err, result) => {
         if (err) {
+            console.error('Delete menu item error:', err);
             return res.status(500).json({ success: false, message: 'Database error' });
         }
-        if (results.length === 0) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
-        }
-
-        const imagePath = results[0].product_image;
-
-        // Delete from DB
-        const deleteQuery = 'DELETE FROM product WHERE id = ?';
-        db.query(deleteQuery, [productId], (err, result) => {
-            if (err) {
-                return res.status(500).json({ success: false, message: 'Database error' });
-            }
-
-            // Delete file if exists and it's a local file
-            if (imagePath && imagePath.startsWith('/resources/')) {
-                // Convert web path (/resources/...) to system path
-                // webPath: /resources/username/product/file.jpg
-                // sysPath: __dirname/resources/username/product/file.jpg
-                // Removing the leading slash from webPath ensures path.join works correctly relative to __dirname
-                const validPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-                const absolutePath = path.join(__dirname, validPath);
-
-                fs.unlink(absolutePath, (err) => {
-                    if (err) console.error('Error deleting image file:', err);
-                });
-            }
-
-
-
-            res.json({ success: true, message: 'Product deleted successfully' });
-        });
+        res.json({ success: true, message: 'Product deleted successfully' });
     });
 });
 
-// Update Product Endpoint
-app.post('/api/product/update/:id', isAuthenticated, uploadProduct.single('product_image'), (req, res) => {
+// Update Product Endpoint - Now updating menu_items
+app.post('/api/product/update/:id', isAuthenticated, uploadMenu.single('product_image'), (req, res) => {
     const productId = req.params.id;
-    const email = req.session.user.email;
-    const { product_name, product_stock, product_price, product_notes, product_image_url } = req.body;
+    // const email = req.session.user.email; // menu_items doesn't have email owner check here
+    const { product_name, product_price, product_image_url } = req.body;
 
     // Validation
-    if (!product_name || !product_stock || !product_price) {
+    if (!product_name || !product_price) {
         return res.status(400).json({ success: false, message: 'Please fill in all required fields' });
     }
 
-    // 1. Get current image to delete if replaced
-    const getQuery = 'SELECT product_image FROM product WHERE id = ? AND email = ?';
-    db.query(getQuery, [productId, email], (err, results) => {
+    // 1. Get current image
+    const getQuery = 'SELECT image FROM menu_items WHERE id = ?';
+    db.query(getQuery, [productId], (err, results) => {
         if (err) {
             console.error('Get product for update error:', err);
             return res.status(500).json({ success: false, message: 'Database error' });
@@ -200,46 +174,27 @@ app.post('/api/product/update/:id', isAuthenticated, uploadProduct.single('produ
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
 
-        const currentImage = results[0].product_image;
+        const currentImage = results[0].image;
         let newImagePath = currentImage;
-        let hasNewImageBeenProvided = false;
+        const email = req.session.user.email;
         const username = email.split('@')[0];
 
         // Determine new image
         if (req.file) {
-            newImagePath = `/resources/${username}/product/${req.file.originalname}`;
-            hasNewImageBeenProvided = true;
+            newImagePath = `assets/images/${req.file.originalname}`; // Using simple path as per DB schema
         } else if (product_image_url && product_image_url.trim() !== '') {
             newImagePath = product_image_url.trim();
-            hasNewImageBeenProvided = true;
-        } else if (product_image_url === '') { // If URL is explicitly cleared
-            newImagePath = null;
-            hasNewImageBeenProvided = true;
         }
 
-
-        // 2. Delete old file if it was local and is being replaced or cleared
-        // 2. Delete old file if it was local and is being replaced or cleared
-        if (currentImage && (currentImage.startsWith('/resources/') || currentImage.startsWith('resources/')) && (hasNewImageBeenProvided && newImagePath !== currentImage)) {
-            // Normalize path: Remove leading slash if present
-            const relativePath = currentImage.startsWith('/') ? currentImage.slice(1) : currentImage;
-            const absolutePath = path.join(__dirname, relativePath);
-
-            console.log(`[Update] Attempting to delete old image: ${absolutePath}`);
-
-            fs.unlink(absolutePath, (err) => {
-                if (err) console.error('[Update] Error deleting old product image:', err);
-                else console.log('[Update] Old image deleted successfully.');
-            });
-        }
+        // Note: Not deleting old images for menu_items to avoid breaking other references or assets
 
         const updateQuery = `
-            UPDATE product 
-            SET product_name = ?, product_stock = ?, product_price = ?, product_notes = ?, product_image = ?
-            WHERE id = ? AND email = ?
+            UPDATE menu_items 
+            SET name = ?, price = ?, image = ?
+            WHERE id = ?
         `;
 
-        db.query(updateQuery, [product_name, product_stock, product_price, product_notes, newImagePath, productId, email], (err, result) => {
+        db.query(updateQuery, [product_name, product_price, newImagePath, productId], (err, result) => {
             if (err) {
                 console.error('Update product error:', err);
                 return res.status(500).json({ success: false, message: 'Database error' });
@@ -319,16 +274,55 @@ db.query(migrationQuery, (err) => {
 });
 
 // Get All Orders (Filtered)
+// Get All Orders (Filtered & Paginated & Aggregated)
 app.get('/api/orders', isAuthenticated, (req, res) => {
     const isArchived = req.query.archived === 'true';
-    const query = 'SELECT * FROM customer_order WHERE is_archived = ? ORDER BY date_order DESC, id DESC';
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10; // Default 10 items per page
+    const offset = (page - 1) * limit;
 
-    db.query(query, [isArchived], (err, results) => {
+    // Logic Change: 
+    // archived=false (Active View) -> Showing Non-Delivered Orders (Wait, Process, etc.)
+    // archived=true (History View) -> Showing Delivered or Archived Orders
+
+    let whereClause = '';
+    let params = [];
+
+    if (isArchived) {
+        // History: Delivered OR Archived
+        whereClause = "(status_order = 'Delivered' OR is_archived = 1)";
+    } else {
+        // Active: Not Delivered AND Not Archived
+        whereClause = "(status_order != 'Delivered' AND is_archived = 0)";
+    }
+
+    const query = `
+        SELECT 
+            MIN(id) as id, -- Keep one ID for key purposes
+            order_id,
+            customer,
+            date_order,
+            product_ordered,
+            SUM(quantity) as quantity,
+            SUM(total_price) as total_price,
+            status_order,
+            is_archived
+        FROM customer_order 
+        WHERE ${whereClause}
+        GROUP BY order_id, product_ordered, date_order, customer, status_order, is_archived
+        ORDER BY date_order DESC, MAX(id) DESC
+        LIMIT ? OFFSET ?
+    `;
+
+    // Params for LIMIT and OFFSET
+    params.push(limit, offset);
+
+    db.query(query, params, (err, results) => {
         if (err) {
             console.error('Error fetching orders:', err);
             return res.status(500).json({ success: false, message: 'Database error' });
         }
-        res.json({ success: true, orders: results });
+        res.json({ success: true, orders: results, page, limit });
     });
 });
 
@@ -387,16 +381,18 @@ app.post('/api/user/update', isAuthenticated, (req, res) => {
 
 // Get dashboard stats API
 app.get('/api/stats', isAuthenticated, (req, res) => {
-    const email = req.session.user.email;
-    const productQuery = 'SELECT COUNT(*) as total_products, SUM(product_stock) as total_stock FROM product WHERE email = ?';
+    // const email = req.session.user.email; // No longer needed for global menu_items count
+    const productQuery = 'SELECT COUNT(*) as total_products FROM menu_items';
     const orderQuery = `
         SELECT 
-            SUM(CASE WHEN is_archived = TRUE THEN 1 ELSE 0 END) as total_completed,
-            SUM(CASE WHEN status_order = 'Menunggu Pembayaran' AND is_archived = FALSE THEN 1 ELSE 0 END) as total_pending
+            SUM(CASE WHEN status_order = 'Delivered' THEN 1 ELSE 0 END) as total_completed,
+            SUM(CASE WHEN status_order != 'Delivered' THEN 1 ELSE 0 END) as total_pending,
+            SUM(CASE WHEN status_order = 'WAITING_SPLIT_PAYMENT' THEN 1 ELSE 0 END) as total_waiting_split,
+            SUM(CASE WHEN status_order = 'Order_Confirmed' THEN 1 ELSE 0 END) as total_confirmed
         FROM customer_order
     `;
 
-    db.query(productQuery, [email], (err, productResults) => {
+    db.query(productQuery, (err, productResults) => {
         if (err) {
             console.error('Stats query error (Products):', err);
             return res.status(500).json({ success: false, message: 'Database error' });
@@ -409,15 +405,15 @@ app.get('/api/stats', isAuthenticated, (req, res) => {
             }
 
             const pStats = productResults[0];
-            const oStats = orderResults[0] || { total_completed: 0, total_pending: 0 };
+            const oStats = orderResults[0] || { total_completed: 0, total_pending: 0, total_waiting_split: 0, total_confirmed: 0 };
 
             res.json({
                 success: true,
                 total_products: pStats.total_products || 0,
-                total_stock: pStats.total_stock || 0,
-                rating: 'N/A', // Static as requested
                 total_completed: oStats.total_completed || 0,
-                total_pending: oStats.total_pending || 0
+                total_pending: oStats.total_pending || 0,
+                total_waiting_split: oStats.total_waiting_split || 0,
+                total_confirmed: oStats.total_confirmed || 0
             });
         });
     });
